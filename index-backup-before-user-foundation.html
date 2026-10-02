@@ -1,0 +1,6773 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PawFinds - Global Pet Rescue & Radar Ecosystem</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        /* =========================================================
+           PAWFINDs — REDISEÑO TOTAL / "RESCUE NETWORK"
+           Nueva identidad: Navy + Coral + Violet + Mint + Cream
+           Se conservan todos los selectores funcionales existentes.
+        ========================================================= */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --transition-fast: .18s ease;
+            --transition-normal: .32s cubic-bezier(.16,1,.3,1);
+            --transition-spring: .45s cubic-bezier(.2,1.3,.3,1);
+            --radius-xs: 8px;
+            --radius-sm: 12px;
+            --radius-md: 15px;
+            --radius-lg: 19px;
+            --radius-xl: 24px;
+            --radius-2xl: 30px;
+        }
+
+        body.dark {
+            --bg-app: #09101f;
+            --surface-panel: #10182a;
+            --surface-card: #151f33;
+            --surface-soft: #1a263c;
+            --surface-hover: #202d46;
+            --border-line: #293750;
+
+            --text-main: #f7f8fc;
+            --text-muted: #a8b2c4;
+            --text-soft: #718098;
+
+            --accent-brand: #ff7658;
+            --accent-dark: #eb5a3b;
+            --accent-second: #8c83ff;
+            --accent-mint: #46d0bc;
+            --accent-gold: #f4c45e;
+            --accent-glow: rgba(255,118,88,.24);
+
+            --success: #46d0bc;
+            --warning: #f4c45e;
+            --danger: #ff6676;
+            --info: #69a4ff;
+            --indigo: #9b92ff;
+
+            --paw-pattern: rgba(255,255,255,.055);
+
+            --shadow-elevation:
+                0 28px 75px -25px rgba(0,0,0,.72);
+
+            --shadow-card:
+                0 16px 36px -20px rgba(0,0,0,.65);
+
+            --header-bg: rgba(9,16,31,.82);
+            --glass-bg: rgba(255,255,255,.055);
+        }
+
+        body.light {
+            --bg-app: #f5f0eb;
+            --surface-panel: #fffaf6;
+            --surface-card: #f7f1eb;
+            --surface-soft: #efe7df;
+            --surface-hover: #e9dfd5;
+            --border-line: #dfd3c8;
+
+            --text-main: #202838;
+            --text-muted: #6c7586;
+            --text-soft: #9ba3ae;
+
+            --accent-brand: #ff674b;
+            --accent-dark: #eb5138;
+            --accent-second: #6f66e8;
+            --accent-mint: #299f91;
+            --accent-gold: #c98e27;
+            --accent-glow: rgba(255,103,75,.20);
+
+            --success: #299f91;
+            --warning: #c98e27;
+            --danger: #e95363;
+            --info: #3d7fdd;
+            --indigo: #6f66e8;
+
+            --paw-pattern: rgba(111,102,232,.075);
+
+            --shadow-elevation:
+                0 28px 70px -25px rgba(40,34,29,.20);
+
+            --shadow-card:
+                0 15px 34px -20px rgba(40,34,29,.16);
+
+            --header-bg: rgba(255,250,246,.84);
+            --glass-bg: rgba(255,255,255,.62);
+        }
+
+        html {
+            background: var(--bg-app);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background:
+                radial-gradient(circle at 7% 2%, rgba(255,118,88,.10), transparent 22%),
+                radial-gradient(circle at 90% 18%, rgba(140,131,255,.10), transparent 24%),
+                radial-gradient(circle at 78% 100%, rgba(70,208,188,.07), transparent 25%),
+                var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            min-height: 620px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition:
+                background .35s ease,
+                color .35s ease;
+            position: relative;
+            isolation: isolate;
+        }
+
+        /* =========================================================
+           HUELLITAS — AHORA VISIBLES EN TODA LA SUPERFICIE
+        ========================================================= */
+
+        body::before,
+        body::after {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--paw-pattern);
+            white-space: pre-wrap;
+            line-height: 1;
+            user-select: none;
+        }
+
+        body::before {
+            content:
+                "\f1b0    \f1b0        \f1b0    \f1b0        \f1b0"
+                "\A"
+                "\A"
+                "      \f1b0    \f1b0        \f1b0    \f1b0"
+                "\A"
+                "\A"
+                "\f1b0        \f1b0      \f1b0        \f1b0";
+            inset: -10% -4% 0 auto;
+            width: 56%;
+            font-size: 38px;
+            line-height: 3.9;
+            letter-spacing: 6px;
+            opacity: .92;
+            transform: rotate(-11deg) scale(1.08);
+        }
+
+        body::after {
+            content:
+                "\f1b0        \f1b0        \f1b0        \f1b0"
+                "\A"
+                "\A"
+                "    \f1b0        \f1b0        \f1b0"
+                "\A"
+                "\A"
+                "\f1b0      \f1b0        \f1b0        \f1b0";
+            inset: auto auto -10% -6%;
+            width: 52%;
+            font-size: 26px;
+            line-height: 4.6;
+            letter-spacing: 9px;
+            opacity: .72;
+            transform: rotate(13deg) scale(1.10);
+        }
+
+        body > header,
+        body > #admin-panel-section,
+        body > main {
+            position: relative;
+            z-index: 2;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::selection {
+            background: rgba(140,131,255,.28);
+            color: var(--text-main);
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        header {
+            height: 88px;
+            min-height: 88px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.035), transparent),
+                var(--header-bg);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border-bottom: 1px solid var(--border-line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            padding: 0 30px;
+            z-index: 50;
+            box-shadow:
+                0 10px 36px rgba(0,0,0,.08);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            user-select: none;
+            min-width: 220px;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 17px;
+            background:
+                radial-gradient(circle at 30% 22%, rgba(255,255,255,.35), transparent 28%),
+                linear-gradient(135deg, var(--accent-brand), var(--accent-second));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            box-shadow:
+                0 13px 34px var(--accent-glow),
+                inset 0 1px 0 rgba(255,255,255,.38);
+            transition: var(--transition-spring);
+            position: relative;
+        }
+
+        .brand-logo::after {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            border: 1px solid rgba(140,131,255,.22);
+            border-radius: 20px;
+            transform: rotate(7deg);
+            transition: var(--transition-normal);
+        }
+
+        .brand-container:hover .brand-logo {
+            transform: translateY(-2px) scale(1.07) rotate(5deg);
+        }
+
+        .brand-container:hover .brand-logo::after {
+            transform: rotate(-5deg) scale(1.04);
+        }
+
+        .brand-title {
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -.8px;
+            background:
+                linear-gradient(135deg, var(--accent-brand), var(--accent-second) 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-status {
+            margin-top: 6px;
+            font-size: 10.5px;
+            color: var(--success);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: .1px;
+        }
+
+        .brand-status::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(70,208,188,.10), 0 0 13px rgba(70,208,188,.4);
+            animation: liveDot 1.8s infinite;
+        }
+
+        @keyframes liveDot {
+            50% { transform: scale(.72); opacity: .65; }
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 4px 0;
+        }
+
+        .header-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* =========================================================
+           BOTONES — NUEVO LENGUAJE VISUAL
+        ========================================================= */
+
+        .nav-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 15px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-weight: 850;
+            font-size: 12.5px;
+            letter-spacing: -.05px;
+            border: 1px solid var(--border-line);
+            cursor: pointer;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.035), transparent),
+                var(--surface-card);
+            color: var(--text-main);
+            transition: var(--transition-normal);
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow:
+                0 7px 18px rgba(0,0,0,.08);
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255,255,255,.13), transparent 40%);
+            transform: translateX(-110%);
+            transition: transform .4s ease;
+            pointer-events: none;
+        }
+
+        .nav-btn:hover::before {
+            transform: translateX(110%);
+        }
+
+        .nav-btn:hover {
+            border-color: rgba(140,131,255,.65);
+            color: var(--accent-second);
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 26px rgba(0,0,0,.12),
+                0 0 0 3px rgba(140,131,255,.07);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0) scale(.98);
+        }
+
+        .nav-btn.primary {
+            color: #fff !important;
+            border-color: transparent !important;
+            background:
+                linear-gradient(135deg, var(--accent-brand), var(--accent-second)) !important;
+            box-shadow:
+                0 11px 28px var(--accent-glow),
+                inset 0 1px 0 rgba(255,255,255,.20);
+        }
+
+        .nav-btn.primary:hover {
+            color: #fff !important;
+            filter: brightness(1.06) saturate(1.05);
+            transform: translateY(-3px);
+            box-shadow:
+                0 15px 34px var(--accent-glow);
+        }
+
+        #theme-icon {
+            color: var(--accent-gold) !important;
+        }
+
+        /* =========================================================
+           MAIN / SIDEBAR
+        ========================================================= */
+
+        main {
+            flex: 1;
+            height: calc(100vh - 88px);
+            min-height: 0;
+            display: flex;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .sidebar {
+            width: 450px;
+            min-width: 450px;
+            background:
+                linear-gradient(180deg, rgba(140,131,255,.045), transparent 28%),
+                var(--surface-panel);
+            border-right: 1px solid var(--border-line);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                15px 0 40px rgba(0,0,0,.06);
+        }
+
+        .sidebar::after {
+            content: "\f1b0";
+            position: absolute;
+            right: -18px;
+            top: 46%;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 150px;
+            color: var(--paw-pattern);
+            transform: rotate(-22deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sidebar > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-header {
+            padding: 24px 22px 18px;
+            border-bottom: 1px solid var(--border-line);
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.07), rgba(140,131,255,.05) 65%, transparent);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: "\f1b0";
+            position: absolute;
+            right: 18px;
+            top: 15px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 54px;
+            color: var(--paw-pattern);
+            transform: rotate(18deg);
+            pointer-events: none;
+        }
+
+        .sidebar-heading {
+            font-size: 21px;
+            font-weight: 900;
+            letter-spacing: -.65px;
+        }
+
+        .sidebar-description {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            line-height: 1.55;
+            max-width: 290px;
+        }
+
+        .radius-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.10), rgba(140,131,255,.08)),
+                var(--surface-card);
+            border: 1px solid var(--border-line);
+            border-radius: 12px;
+            padding: 10px 31px 10px 12px;
+            font-family: inherit;
+            font-weight: 850;
+            font-size: 11.5px;
+            color: var(--accent-brand);
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .radius-select:hover,
+        .radius-select:focus {
+            border-color: var(--accent-brand);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-top: 14px;
+            scrollbar-width: none;
+        }
+
+        .filter-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-tab {
+            padding: 9px 14px;
+            min-height: 38px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 11.5px;
+            font-weight: 850;
+            border: 1px solid var(--border-line);
+            cursor: pointer;
+            background: var(--surface-card);
+            color: var(--text-muted);
+            transition: var(--transition-normal);
+            white-space: nowrap;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+        }
+
+        .filter-tab:hover {
+            border-color: var(--accent-second);
+            color: var(--accent-second);
+            transform: translateY(-1px);
+        }
+
+        .filter-tab.active {
+            background:
+                linear-gradient(135deg, var(--accent-brand), var(--accent-second));
+            color: #fff;
+            border-color: transparent;
+            box-shadow:
+                0 9px 24px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           ALERTAS / CARDS
+        ========================================================= */
+
+        .alerts-scroll-area {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 94px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-line) transparent;
+        }
+
+        .alerts-scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .alerts-scroll-area::-webkit-scrollbar-thumb {
+            background: var(--border-line);
+            border-radius: 10px;
+        }
+
+        .rescue-card {
+            position: relative;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,.025), transparent 60%),
+                var(--surface-card);
+            border: 1px solid var(--border-line);
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            min-height: 116px;
+            isolation: isolate;
+        }
+
+        .rescue-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 16px;
+            bottom: 16px;
+            width: 4px;
+            border-radius: 0 7px 7px 0;
+            background:
+                linear-gradient(180deg, var(--accent-brand), var(--accent-second));
+            opacity: 0;
+            transition: var(--transition-fast);
+            z-index: 2;
+        }
+
+        .rescue-card::after {
+            content: "\f1b0";
+            position: absolute;
+            right: -8px;
+            bottom: -13px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 55px;
+            color: var(--paw-pattern);
+            transform: rotate(-12deg);
+            pointer-events: none;
+            z-index: 0;
+            transition: var(--transition-normal);
+        }
+
+        .rescue-card:hover {
+            border-color: rgba(140,131,255,.55);
+            transform: translateY(-4px) translateX(3px);
+            box-shadow:
+                0 18px 38px rgba(0,0,0,.14),
+                0 0 0 3px rgba(140,131,255,.05);
+        }
+
+        .rescue-card:hover::before,
+        .rescue-card.highlighted::before {
+            opacity: 1;
+        }
+
+        .rescue-card:hover::after {
+            transform: rotate(-2deg) scale(1.08);
+            color: rgba(255,118,88,.08);
+        }
+
+        .rescue-card.highlighted {
+            border-color: var(--accent-brand);
+            background:
+                linear-gradient(145deg, rgba(255,118,88,.13), rgba(140,131,255,.08)),
+                var(--surface-card);
+            box-shadow:
+                0 0 0 2px rgba(255,118,88,.10),
+                0 16px 40px var(--accent-glow);
+        }
+
+        .rescue-card img {
+            width: 96px;
+            height: 96px;
+            min-width: 96px;
+            border-radius: 17px;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,.10);
+            box-shadow:
+                0 9px 20px rgba(0,0,0,.20);
+            position: relative;
+            z-index: 2;
+            transition: var(--transition-normal);
+        }
+
+        .rescue-card:hover img {
+            transform: scale(1.025);
+        }
+
+        .rescue-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .rescue-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 9px;
+            margin-bottom: 6px;
+        }
+
+        .rescue-name {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -.35px;
+        }
+
+        .rescue-species {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rescue-location {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rescue-location i {
+            color: var(--accent-brand) !important;
+        }
+
+        .status-badge {
+            font-size: 9.5px;
+            font-weight: 900;
+            padding: 5px 9px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-perdido {
+            background: rgba(255,102,118,.12);
+            color: #ff7481;
+            border: 1px solid rgba(255,102,118,.28);
+        }
+
+        .badge-encontrado {
+            background: rgba(244,196,94,.12);
+            color: var(--accent-gold);
+            border: 1px solid rgba(244,196,94,.26);
+        }
+
+        .badge-avistamiento {
+            background: rgba(105,164,255,.12);
+            color: #72aaff;
+            border: 1px solid rgba(105,164,255,.26);
+        }
+
+        .badge-refugio {
+            background: rgba(70,208,188,.12);
+            color: var(--success);
+            border: 1px solid rgba(70,208,188,.27);
+        }
+
+        .badge-reunido {
+            background: rgba(155,146,255,.13);
+            color: var(--indigo);
+            border: 1px solid rgba(155,146,255,.27);
+        }
+
+        .health-tag {
+            font-size: 10px;
+            font-weight: 850;
+            padding: 5px 8px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            width: fit-content;
+        }
+
+        .health-urgent {
+            background: rgba(255,102,118,.12);
+            color: var(--danger);
+            border: 1px solid rgba(255,102,118,.12);
+        }
+
+        .health-stable {
+            background: rgba(70,208,188,.11);
+            color: var(--success);
+            border: 1px solid rgba(70,208,188,.11);
+        }
+
+        /* =========================================================
+           SOCIAL DOCK — INTERACCIÓN DESTACADA
+        ========================================================= */
+
+        .sidebar-social-dock {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.08), rgba(140,131,255,.09)),
+                rgba(13,20,35,.90);
+            border: 1px solid var(--border-line);
+            padding: 10px 13px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            z-index: 30;
+            box-shadow:
+                0 18px 42px rgba(0,0,0,.25),
+                inset 0 1px 0 rgba(255,255,255,.06);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+        }
+
+        body.light .sidebar-social-dock {
+            background:
+                linear-gradient(135deg, rgba(255,103,75,.07), rgba(111,102,232,.07)),
+                rgba(255,250,246,.93);
+        }
+
+        .community-label {
+            font-size: 10.5px;
+            font-weight: 900;
+            color: var(--text-muted);
+            letter-spacing: .2px;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .social-dock-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-line);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            cursor: pointer;
+            transition: var(--transition-spring);
+            text-decoration: none;
+            position: relative;
+            overflow: visible;
+            box-shadow: 0 7px 15px rgba(0,0,0,.10);
+        }
+
+        .social-dock-btn::before {
+            content: attr(title);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 9px);
+            transform: translate(-50%, 6px);
+            background: #10172a;
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 800;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: .18s ease;
+            box-shadow: 0 10px 24px rgba(0,0,0,.28);
+            z-index: 100;
+        }
+
+        .social-dock-btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 1px solid transparent;
+            transition: var(--transition-normal);
+            pointer-events: none;
+        }
+
+        .social-dock-btn:hover {
+            transform: translateY(-5px) scale(1.08);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .social-dock-btn:hover::before {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .social-dock-btn:active {
+            transform: translateY(-1px) scale(.96);
+        }
+
+        .social-dock-btn:hover i {
+            transform: scale(1.13);
+        }
+
+        .social-dock-btn i {
+            transition: transform .22s ease;
+        }
+
+        .social-buttons .social-dock-btn:nth-child(1):hover {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d 56%, #fcb045);
+            box-shadow: 0 10px 24px rgba(253,29,29,.25);
+        }
+
+        .social-buttons .social-dock-btn:nth-child(2):hover {
+            background: #1877f2;
+            box-shadow: 0 10px 24px rgba(24,119,242,.26);
+        }
+
+        .social-buttons .social-dock-btn:nth-child(3):hover {
+            background: #080808;
+            box-shadow: 0 10px 24px rgba(0,0,0,.42);
+        }
+
+        .social-buttons .social-dock-btn:nth-child(4):hover {
+            background: linear-gradient(135deg, var(--accent-brand), #ff9d6f);
+            box-shadow: 0 10px 24px var(--accent-glow);
+        }
+
+        /* =========================================================
+           MAPA
+        ========================================================= */
+
+        .map-wrapper {
+            flex: 1;
+            min-width: 0;
+            background:
+                radial-gradient(circle at 50% 40%, rgba(140,131,255,.08), transparent 34%),
+                radial-gradient(circle at 75% 82%, rgba(70,208,188,.06), transparent 24%),
+                var(--bg-app);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 22px;
+        }
+
+        .map-wrapper::before {
+            content: "\f1b0    \f1b0    \f1b0";
+            position: absolute;
+            top: -12px;
+            right: 90px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 42px;
+            line-height: 2.6;
+            letter-spacing: 45px;
+            white-space: nowrap;
+            color: var(--paw-pattern);
+            transform: rotate(-10deg);
+            pointer-events: none;
+        }
+
+        .map-container-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 28px;
+            border: 1px solid var(--border-line);
+            background: var(--surface-panel);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-elevation);
+            isolation: isolate;
+        }
+
+        .map-container-inner::before {
+            content: "\f1b0";
+            position: absolute;
+            right: 29px;
+            top: 35%;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 190px;
+            color: rgba(255,255,255,.045);
+            z-index: 12;
+            pointer-events: none;
+            transform: rotate(18deg);
+            text-shadow: 0 0 55px rgba(140,131,255,.14);
+        }
+
+        body.light .map-container-inner::before {
+            color: rgba(111,102,232,.065);
+        }
+
+        #real-leaflet-map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+
+        .map-status-card {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.08), rgba(140,131,255,.08)),
+                rgba(13,20,35,.91);
+            border: 1px solid rgba(255,255,255,.12);
+            padding: 11px 15px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow:
+                0 18px 40px rgba(0,0,0,.28);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: var(--transition-normal);
+        }
+
+        body.light .map-status-card {
+            background: rgba(255,250,246,.94);
+            border-color: var(--border-line);
+            box-shadow: 0 15px 32px rgba(40,34,29,.14);
+        }
+
+        .map-status-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(140,131,255,.60);
+            box-shadow:
+                0 20px 44px rgba(0,0,0,.20);
+        }
+
+        .success-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, rgba(140,131,255,.18), rgba(70,208,188,.12));
+            color: var(--indigo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+        }
+
+        .map-status-title {
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: -.15px;
+        }
+
+        .map-status-link {
+            font-size: 10.5px;
+            color: var(--indigo);
+            font-weight: 850;
+            margin-top: 2px;
+        }
+
+        .map-legend {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            z-index: 30;
+            background:
+                linear-gradient(135deg, rgba(13,20,35,.92), rgba(22,30,48,.90));
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.11);
+            border-radius: 16px;
+            padding: 13px 15px;
+            box-shadow: 0 17px 38px rgba(0,0,0,.30);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            min-width: 165px;
+        }
+
+        body.light .map-legend {
+            background: rgba(255,250,246,.95);
+            color: var(--text-main);
+            border-color: var(--border-line);
+            box-shadow: 0 15px 32px rgba(40,34,29,.15);
+        }
+
+        .legend-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            font-weight: 900;
+            color: var(--text-muted);
+            margin-bottom: 9px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            margin-top: 7px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* =========================================================
+           RADAR — CLASES ORIGINALES CONSERVADAS
+        ========================================================= */
+
+        .custom-map-radar-pin {
+            background: transparent !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+
+        .leaflet-marker-icon.custom-map-radar-pin {
+            background: transparent !important;
+            border: 0 !important;
+            overflow: visible !important;
+        }
+
+        .radar-pin-wrapper {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        .radar-pulse-ring {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: transparent !important;
+            border: 2px solid var(--radar-color, #ff6676);
+            box-shadow: 0 0 15px var(--radar-color, #ff6676);
+            animation:
+                mapRadarPulse 2.8s infinite
+                cubic-bezier(.1,.8,.3,1);
+            opacity: .95;
+            pointer-events: none;
+        }
+
+        .radar-pulse-ring::before,
+        .radar-pulse-ring::after {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: 50%;
+            border: 1.5px solid var(--radar-color, #ff6676);
+            opacity: .7;
+            pointer-events: none;
+        }
+
+        .radar-pulse-ring::before {
+            animation:
+                mapRadarWave 2.8s infinite
+                cubic-bezier(.1,.8,.3,1);
+            animation-delay: .65s;
+        }
+
+        .radar-pulse-ring::after {
+            animation:
+                mapRadarWave 2.8s infinite
+                cubic-bezier(.1,.8,.3,1);
+            animation-delay: 1.3s;
+        }
+
+        @keyframes mapRadarPulse {
+            0% {
+                transform: scale(.8);
+                opacity: .95;
+            }
+            60% {
+                opacity: .40;
+            }
+            100% {
+                transform: scale(3.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes mapRadarWave {
+            0% {
+                transform: scale(.8);
+                opacity: .82;
+            }
+            100% {
+                transform: scale(2.7);
+                opacity: 0;
+            }
+        }
+
+        .radar-core-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow:
+                0 10px 22px rgba(0,0,0,.58),
+                0 0 22px var(--radar-color, transparent);
+            border: 2.5px solid #ffffff;
+            z-index: 2;
+            position: relative;
+        }
+
+        .radar-core-icon::after {
+            content: "";
+            position: absolute;
+            inset: -7px;
+            border-radius: 50%;
+            border: 1px solid var(--radar-color, transparent);
+            opacity: .45;
+            animation: coreGlow 1.8s infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes coreGlow {
+            from {
+                transform: scale(.90);
+                opacity: .18;
+            }
+            to {
+                transform: scale(1.14);
+                opacity: .68;
+            }
+        }
+
+        /* =========================================================
+           LEAFLET
+        ========================================================= */
+
+        .leaflet-container {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #c7d8df;
+        }
+
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+            background: var(--surface-panel);
+            color: var(--text-main);
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px;
+            box-shadow:
+                0 18px 38px rgba(0,0,0,.28);
+            border: 1px solid var(--border-line);
+        }
+
+        .leaflet-popup-content {
+            margin: 12px;
+        }
+
+        .leaflet-popup-close-button {
+            color: var(--text-muted) !important;
+            font-weight: 900 !important;
+        }
+
+        .leaflet-control-attribution {
+            font-size: 9px;
+            opacity: .72;
+            background: rgba(255,255,255,.65) !important;
+        }
+
+        body.dark .leaflet-control-attribution {
+            background: rgba(10,16,30,.68) !important;
+            color: #d8dee8;
+        }
+
+        /* =========================================================
+           MODALES
+        ========================================================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5,9,18,.72);
+            backdrop-filter: blur(15px) saturate(125%);
+            -webkit-backdrop-filter: blur(15px) saturate(125%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInModal .22s ease;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-box {
+            position: relative;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(140,131,255,.10), transparent 30%),
+                radial-gradient(circle at 0% 100%, rgba(255,118,88,.08), transparent 28%),
+                var(--surface-panel);
+            border: 1px solid var(--border-line);
+            color: var(--text-main);
+            border-radius: 27px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow:
+                0 40px 100px rgba(0,0,0,.48);
+            animation:
+                modalEnter .32s
+                cubic-bezier(.16,1,.3,1);
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-line) transparent;
+            overflow-x: hidden;
+        }
+
+        .modal-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            border-radius: 0 0 8px 8px;
+            background: linear-gradient(90deg, var(--accent-brand), var(--accent-second), var(--accent-mint));
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .modal-box::after {
+            content: "\f1b0";
+            position: absolute;
+            right: -18px;
+            top: 26px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 120px;
+            color: var(--paw-pattern);
+            transform: rotate(12deg);
+            pointer-events: none;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalEnter {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(.965);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 23px;
+            border-bottom: 1px solid var(--border-line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 2;
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.055), rgba(140,131,255,.045));
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: -.25px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-line);
+            color: var(--text-muted);
+            font-size: 17px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 4;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+            background: var(--danger);
+            border-color: var(--danger);
+            transform: rotate(7deg) scale(1.04);
+            box-shadow: 0 8px 20px rgba(255,102,118,.24);
+        }
+
+        .modal-body {
+            padding: 23px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* =========================================================
+           FORMULARIOS
+        ========================================================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 850;
+            color: var(--text-main);
+            margin-bottom: 7px;
+        }
+
+        .form-input {
+            width: 100%;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.02), transparent),
+                var(--bg-app);
+            border: 1px solid var(--border-line);
+            border-radius: 13px;
+            padding: 13px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 650;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-soft);
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-second);
+            box-shadow:
+                0 0 0 3px rgba(140,131,255,.10),
+                0 8px 25px rgba(0,0,0,.08);
+        }
+
+        select.form-input {
+            cursor: pointer;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--accent-brand);
+        }
+
+        /* =========================================================
+           ADMIN
+        ========================================================= */
+
+        #admin-panel-section {
+            background:
+                linear-gradient(90deg, rgba(244,196,94,.14), rgba(244,196,94,.035))
+                !important;
+            border-bottom-color: rgba(244,196,94,.48) !important;
+            backdrop-filter: blur(12px);
+        }
+
+        .admin-pending-item {
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.025), transparent),
+                var(--surface-card);
+            padding: 8px 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 7px 16px rgba(0,0,0,.08);
+        }
+
+        /* =========================================================
+           CHAT
+        ========================================================= */
+
+        .chat-messages {
+            background:
+                radial-gradient(circle at 15% 15%, rgba(255,118,88,.06), transparent 25%),
+                radial-gradient(circle at 85% 85%, rgba(140,131,255,.06), transparent 25%),
+                var(--bg-app);
+            border: 1px solid var(--border-line);
+            border-radius: 17px;
+            height: 290px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 13px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 650;
+            line-height: 1.48;
+            word-break: break-word;
+            box-shadow: 0 7px 16px rgba(0,0,0,.08);
+        }
+
+        .chat-bubble.user {
+            margin-left: auto;
+            background:
+                linear-gradient(135deg, var(--accent-brand), var(--accent-second));
+            color: #fff;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-bubble.other {
+            margin-right: auto;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.025), transparent),
+                var(--surface-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-line);
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-photo {
+            display: block;
+            width: 190px;
+            max-width: 100%;
+            border-radius: 11px;
+            margin-bottom: 5px;
+            border: 1px solid rgba(255,255,255,.14);
+        }
+
+        .chat-audio {
+            max-width: 230px;
+            height: 36px;
+        }
+
+        .chat-tool-btn {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            padding: 0;
+            border-radius: 12px;
+        }
+
+        .recording {
+            background: rgba(255,102,118,.16) !important;
+            color: #ff6676 !important;
+            border-color: #ff6676 !important;
+            animation:
+                recordingPulse 1s infinite;
+        }
+
+        @keyframes recordingPulse {
+            50% {
+                box-shadow:
+                    0 0 0 6px rgba(255,102,118,.10);
+            }
+        }
+
+        /* =========================================================
+           HISTORIAS DE REENCUENTRO
+        ========================================================= */
+
+        .success-story-card {
+            position: relative;
+            background:
+                linear-gradient(135deg, rgba(140,131,255,.055), rgba(70,208,188,.04)),
+                var(--bg-app);
+            border: 1px solid var(--border-line);
+            border-radius: 20px;
+            padding: 17px;
+            transition: var(--transition-normal);
+            overflow: hidden;
+        }
+
+        .success-story-card::after {
+            content: "\f1b0";
+            position: absolute;
+            right: -7px;
+            bottom: -14px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 63px;
+            color: var(--paw-pattern);
+            transform: rotate(-10deg);
+            pointer-events: none;
+        }
+
+        .success-story-card:hover {
+            border-color: rgba(140,131,255,.48);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,.12);
+        }
+
+        .success-story-image {
+            width: 74px;
+            height: 74px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 8px 18px rgba(0,0,0,.14);
+        }
+
+        .comment-item {
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.025), transparent),
+                var(--surface-card);
+            padding: 10px 11px;
+            border-radius: 11px;
+            font-size: 11px;
+            color: var(--text-main);
+            border: 1px solid var(--border-line);
+            margin-bottom: 6px;
+        }
+
+        /* =========================================================
+           POSTER
+        ========================================================= */
+
+        .poster-box {
+            max-width: 420px;
+            background:
+                radial-gradient(circle at 0 0, rgba(255,118,88,.11), transparent 30%),
+                #fffdf8;
+            color: #202838;
+            padding: 27px;
+            text-align: center;
+            border: 4px dashed var(--accent-brand);
+            box-shadow:
+                0 30px 70px rgba(0,0,0,.30);
+        }
+
+        #poster-img {
+            border-color: #efe7df !important;
+            box-shadow: 0 10px 22px rgba(32,40,56,.14) !important;
+        }
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+
+        .toast-notification {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            max-width: 390px;
+            background:
+                linear-gradient(135deg, rgba(255,118,88,.08), rgba(140,131,255,.08)),
+                var(--surface-panel);
+            border: 1px solid var(--border-line);
+            color: var(--text-main);
+            padding: 14px 17px;
+            border-radius: 15px;
+            box-shadow:
+                0 20px 48px rgba(0,0,0,.26);
+            font-size: 12px;
+            font-weight: 850;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition:
+                all .32s
+                cubic-bezier(.16,1,.3,1);
+            backdrop-filter: blur(18px);
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+
+        .map-live-indicator {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            z-index: 31;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 12px;
+            border-radius: 999px;
+            background: rgba(13,20,35,.84);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 14px 30px rgba(0,0,0,.22);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .75px;
+            pointer-events: none;
+        }
+
+        body.light .map-live-indicator {
+            background: rgba(255,250,246,.92);
+            color: var(--text-main);
+            border-color: var(--border-line);
+        }
+
+        .map-live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent-mint);
+            box-shadow: 0 0 0 4px rgba(70,208,188,.10), 0 0 14px rgba(70,208,188,.46);
+            animation: liveDot 1.6s infinite;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 1250px) {
+            header {
+                padding: 0 20px;
+                gap: 14px;
+            }
+
+            .header-nav {
+                gap: 6px;
+            }
+
+            .nav-btn {
+                padding: 9px 11px;
+            }
+
+            .nav-btn span {
+                display: none;
+            }
+
+            .nav-btn i {
+                font-size: 15px;
+            }
+
+            .sidebar {
+                width: 405px;
+                min-width: 405px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                overflow: auto;
+                min-height: 100vh;
+                height: auto;
+            }
+
+            header {
+                height: auto;
+                min-height: 78px;
+                padding: 12px 15px;
+                gap: 12px;
+            }
+
+            .brand-title {
+                font-size: 21px;
+            }
+
+            .brand-logo {
+                width: 46px;
+                height: 46px;
+                border-radius: 15px;
+            }
+
+            main {
+                height: auto;
+                min-height: calc(100vh - 78px);
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                min-height: 500px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-line);
+            }
+
+            .alerts-scroll-area {
+                max-height: 500px;
+            }
+
+            .map-wrapper {
+                height: 560px;
+                min-height: 560px;
+                padding: 14px;
+            }
+
+            .map-container-inner {
+                border-radius: 21px;
+            }
+
+            .sidebar-social-dock {
+                position: sticky;
+                bottom: 10px;
+                margin: 0 15px 10px;
+                left: auto;
+                right: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                align-items: flex-start;
+            }
+
+            .header-nav {
+                max-width: 55vw;
+                padding-top: 2px;
+            }
+
+            .brand-container {
+                min-width: 0;
+            }
+
+            .brand-container > div:last-child {
+                display: none;
+            }
+
+            .sidebar-header {
+                padding: 18px 15px;
+            }
+
+            .sidebar-heading {
+                font-size: 19px;
+            }
+
+            .alerts-scroll-area {
+                padding: 14px;
+            }
+
+            .rescue-card {
+                padding: 12px;
+                min-height: 103px;
+            }
+
+            .rescue-card img {
+                width: 79px;
+                height: 79px;
+                min-width: 79px;
+                border-radius: 14px;
+            }
+
+            .rescue-name {
+                font-size: 14px;
+            }
+
+            .rescue-species {
+                font-size: 11.5px;
+            }
+
+            .rescue-location {
+                font-size: 10.5px;
+            }
+
+            .status-badge {
+                font-size: 8.5px;
+                padding: 4px 7px;
+            }
+
+            .map-status-card {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: 280px;
+            }
+
+            .map-legend {
+                right: 10px;
+                bottom: 10px;
+                min-width: 145px;
+            }
+
+            .sidebar-social-dock {
+                padding: 9px 10px;
+            }
+
+            .social-dock-btn {
+                width: 41px;
+                height: 41px;
+                border-radius: 12px;
+            }
+
+            .community-label {
+                display: none;
+            }
+
+            .social-buttons {
+                width: 100%;
+                justify-content: center;
+                gap: 9px;
+            }
+
+            .modal {
+                padding: 10px;
+            }
+
+            .modal-box {
+                border-radius: 21px;
+            }
+
+            .modal-body {
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .chat-messages {
+                height: 250px;
+            }
+
+            .toast-notification {
+                left: 15px;
+                right: 15px;
+                bottom: 15px;
+                max-width: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="dark">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================= -->
+
+    <header>
+
+        <div class="brand-container"
+             onclick="window.location.reload()">
+
+            <div class="brand-logo">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+
+            <div>
+                <h1 class="brand-title">
+                    PawFinds
+                </h1>
+
+                <p id="gps-status"
+                   class="brand-status">
+
+                    <i class="fa-solid fa-location-arrow"></i>
+
+                    Radar activo • Comunidad conectada
+
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="header-nav">
+
+            <button onclick="toggleTheme()"
+                    class="nav-btn"
+                    title="Cambiar Tema">
+
+                <i id="theme-icon"
+                   class="fa-solid fa-sun"
+                   style="color:#fbbf24;"></i>
+
+                <span id="theme-text">
+                    Modo Oscuro
+                </span>
+
+            </button>
+
+
+            <button onclick="openSuccessStoriesModal()"
+                    class="nav-btn">
+
+                <i class="fa-solid fa-heart-circle-check"
+                   style="color:#818cf8;"></i>
+
+                <span>
+                    Reunidos
+                </span>
+
+            </button>
+
+
+            <button onclick="openTriageModal()"
+                    class="nav-btn">
+
+                <i class="fa-solid fa-kit-medical"
+                   style="color:#ef4444;"></i>
+
+                <span>
+                    Urgencias
+                </span>
+
+            </button>
+
+
+            <button onclick="openDonationModal()"
+                    class="nav-btn">
+
+                <i class="fa-solid fa-hand-holding-heart"
+                   style="color:#10b981;"></i>
+
+                <span>
+                    Donar
+                </span>
+
+            </button>
+
+
+            <button id="auth-btn"
+                    onclick="openAuthModal()"
+                    class="nav-btn"
+                    style="color:#60a5fa;">
+
+                <i class="fa-solid fa-user-circle"></i>
+
+                <span id="auth-btn-text">
+                    Ingresar
+                </span>
+
+            </button>
+
+
+            <button onclick="openAdminAuthModal()"
+                    class="nav-btn"
+                    style="color:#fbbf24;"
+                    title="Panel Fundador">
+
+                <i class="fa-solid fa-crown"></i>
+
+                <span>
+                    Admin
+                </span>
+
+            </button>
+
+
+            <button onclick="openModal()"
+                    class="nav-btn primary">
+
+                <i class="fa-solid fa-bullhorn"></i>
+
+                <span>
+                    Reportar
+                </span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         ADMIN
+    ========================================================= -->
+
+    <div id="admin-panel-section"
+         style="display:none;
+                padding:12px 32px;
+                border-bottom:1px solid #f59e0b;
+                z-index:20;">
+
+        <h3 style="margin:0 0 7px 0;
+                   color:#fbbf24;
+                   font-size:13px;
+                   font-weight:900;">
+
+            <i class="fa-solid fa-shield-halved"></i>
+
+            Panel de Moderación de Alertas Pendientes
+
+        </h3>
+
+        <div id="lista-pendientes-admin"
+             style="display:flex;
+                    gap:8px;
+                    flex-wrap:wrap;">
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================= -->
+
+    <main>
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+
+                <div style="display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:10px;
+                            margin-bottom:8px;">
+
+                    <h2 class="sidebar-heading">
+                        Radar Activo
+                    </h2>
+
+                    <select id="radius-select"
+                            class="radius-select"
+                            onchange="updateRadius(this.value)">
+
+                        <option value="3">
+                            Radio: 3 km
+                        </option>
+
+                        <option value="5">
+                            Radio: 5 km
+                        </option>
+
+                        <option value="10"
+                                selected>
+                            Radio: 10 km
+                        </option>
+
+                        <option value="20">
+                            Radio: 20 km
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <p class="sidebar-description">
+
+                    Alertas ordenadas por cercanía GPS.
+
+                </p>
+
+
+                <div class="filter-row">
+
+                    <button onclick="filterAlerts('all', this)"
+                            class="filter-tab active">
+                        Todas
+                    </button>
+
+                    <button onclick="filterAlerts('Perdido', this)"
+                            class="filter-tab">
+                        Perdidos
+                    </button>
+
+                    <button onclick="filterAlerts('Encontrado', this)"
+                            class="filter-tab">
+                        Encontrados
+                    </button>
+
+                    <button onclick="filterAlerts('Avistamiento', this)"
+                            class="filter-tab">
+                        Avistamientos
+                    </button>
+
+                    <button onclick="filterAlerts('Refugio', this)"
+                            class="filter-tab"
+                            style="background:rgba(16,185,129,.12);
+                                   color:#10b981;">
+
+                        🏥 Refugios
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="alerts-list"
+                 class="alerts-scroll-area">
+            </div>
+
+
+            <!-- SOCIAL -->
+
+            <div class="sidebar-social-dock">
+
+                <span class="community-label">
+                    Comunidad:
+                </span>
+
+                <div class="social-buttons">
+
+                    <a href="https://instagram.com"
+                       target="_blank"
+                       class="social-dock-btn"
+                       title="Instagram">
+
+                        <i class="fa-brands fa-instagram"></i>
+
+                    </a>
+
+
+                    <a href="https://facebook.com"
+                       target="_blank"
+                       class="social-dock-btn"
+                       title="Facebook">
+
+                        <i class="fa-brands fa-facebook-f"></i>
+
+                    </a>
+
+
+                    <a href="https://tiktok.com"
+                       target="_blank"
+                       class="social-dock-btn"
+                       title="TikTok">
+
+                        <i class="fa-brands fa-tiktok"></i>
+
+                    </a>
+
+
+                    <button onclick="openSupportModal()"
+                            class="social-dock-btn"
+                            title="Soporte">
+
+                        <i class="fa-solid fa-headset"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAP -->
+
+        <div class="map-wrapper">
+
+            <div class="map-container-inner">
+
+                <div id="real-leaflet-map"></div>
+
+                <div class="map-live-indicator" aria-hidden="true">
+                    <span class="map-live-dot"></span>
+                    RADAR EN VIVO
+                </div>
+
+
+                <!-- SUCCESS -->
+
+                <div class="map-status-card"
+                     onclick="openSuccessStoriesModal()">
+
+                    <div class="success-icon">
+
+                        <i class="fa-solid fa-heart-circle-check"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h4 class="map-status-title">
+                            +145 Familias Reunidas
+                        </h4>
+
+                        <p class="map-status-link">
+                            Ver casos de éxito
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LEGEND -->
+
+                <div class="map-legend">
+
+                    <div class="legend-title">
+                        Señales del radar
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot"
+                              style="background:#ef4444;"></span>
+                        Mascota perdida
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot"
+                              style="background:#f59e0b;"></span>
+                        Encontrada
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot"
+                              style="background:#3b82f6;"></span>
+                        Avistamiento
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot"
+                              style="background:#10b981;"></span>
+                        Refugio
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================================
+         SUPPORT MODAL
+    ========================================================= -->
+
+    <div id="support-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:420px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Soporte al Usuario PawFinds
+                </h3>
+
+                <button onclick="closeSupportModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body"
+                 style="display:flex;
+                        flex-direction:column;
+                        gap:14px;">
+
+                <p style="font-size:13px;
+                          color:var(--text-muted);
+                          line-height:1.5;">
+
+                    ¿Necesitas ayuda con un reporte o emergencia?
+                    Contáctanos directamente.
+
+                </p>
+
+
+                <a href="https://wa.me/573001234567"
+                   target="_blank"
+                   class="nav-btn primary"
+                   style="justify-content:center;
+                          background:#25d366;">
+
+                    <i class="fa-brands fa-whatsapp"></i>
+
+                    Asistencia por WhatsApp
+
+                </a>
+
+
+                <a href="mailto:soporte@pawfinds.com"
+                   class="nav-btn"
+                   style="justify-content:center;">
+
+                    <i class="fa-solid fa-envelope"></i>
+
+                    Enviar Correo de Soporte
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         AUTH
+    ========================================================= -->
+
+    <div id="auth-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:400px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Acceso de Rescatista
+                </h3>
+
+                <button onclick="closeAuthModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body"
+                 style="display:flex;
+                        flex-direction:column;
+                        gap:14px;">
+
+                <button onclick="loginWithGoogle()"
+                        class="nav-btn"
+                        style="width:100%;
+                               justify-content:center;
+                               padding:13px;">
+
+                    <i class="fa-brands fa-google"
+                       style="color:#ef4444;"></i>
+
+                    Continuar con Google
+
+                </button>
+
+
+                <button onclick="closeAuthModal()"
+                        class="nav-btn"
+                        style="width:100%;
+                               justify-content:center;">
+
+                    Cancelar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ADMIN AUTH
+    ========================================================= -->
+
+    <div id="admin-auth-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:380px;
+                    text-align:center;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Acceso Fundador
+                </h3>
+
+                <button onclick="closeAdminAuthModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <form onsubmit="verifyAdminPassword(event)"
+                  class="modal-body">
+
+                <p style="font-size:12px;
+                          color:var(--text-muted);
+                          font-weight:700;
+                          margin-bottom:15px;">
+
+                    Ingresa el PIN de Super Administrador:
+
+                </p>
+
+                <div class="form-group">
+
+                    <input type="password"
+                           id="admin-pin-input"
+                           required
+                           placeholder="••••"
+                           class="form-input"
+                           style="text-align:center;
+                                  font-size:20px;
+                                  letter-spacing:6px;">
+
+                </div>
+
+                <button type="submit"
+                        class="nav-btn primary"
+                        style="width:100%;
+                               margin-top:5px;">
+
+                    <i class="fa-solid fa-unlock"></i>
+
+                    Desbloquear
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ADMIN MODAL
+    ========================================================= -->
+
+    <div id="admin-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:500px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Panel de Super Administrador
+                </h3>
+
+                <button onclick="closeAdminModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div style="background:var(--bg-app);
+                            border:1px solid var(--border-line);
+                            border-radius:15px;
+                            padding:17px;">
+
+                    <p style="font-size:13px;
+                              color:var(--text-muted);">
+
+                        Alertas activas:
+
+                    </p>
+
+                    <strong id="admin-total-alerts"
+                            style="display:block;
+                                   margin-top:4px;
+                                   color:var(--accent-brand);
+                                   font-size:28px;">
+
+                        0
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         TRIAGE
+    ========================================================= -->
+
+    <div id="triage-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:550px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Urgencias Veterinarias 24/7
+                </h3>
+
+                <button onclick="closeTriageModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div style="background:var(--bg-app);
+                            border:1px solid var(--border-line);
+                            border-radius:15px;
+                            padding:15px;
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:12px;">
+
+                    <div>
+
+                        <h4 style="font-size:14px;
+                                   font-weight:900;">
+
+                            🏥 Hospital Patitas Felices
+
+                        </h4>
+
+                        <p style="font-size:11px;
+                                  color:var(--text-muted);
+                                  margin-top:3px;">
+
+                            Calle 45 # 22-10 • 24 Horas
+
+                        </p>
+
+                    </div>
+
+                    <a href="tel:+573158889999"
+                       class="nav-btn primary"
+                       style="padding:7px 12px;
+                              font-size:11px;">
+
+                        <i class="fa-solid fa-phone"></i>
+
+                        Llamar
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- =========================================================
+         SUCCESS STORIES
+    ========================================================= -->
+
+    <div id="success-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:650px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Historias de Reencuentro
+                </h3>
+
+                <button onclick="closeSuccessStoriesModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div id="success-stories-list"
+                 class="modal-body"
+                 style="max-height:65vh;
+                        overflow-y:auto;">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         REPORT
+    ========================================================= -->
+
+    <div id="report-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:550px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Nuevo Reporte Comunitario
+                </h3>
+
+                <button onclick="closeModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <form onsubmit="handleSubmit(event)"
+                  class="modal-body">
+
+                <div class="form-grid"
+                     style="display:grid;
+                            grid-template-columns:1fr 1fr;
+                            gap:14px;">
+
+                    <div class="form-group">
+
+                        <label>
+                            Nombre de la Mascota
+                        </label>
+
+                        <input type="text"
+                               id="rep-name"
+                               required
+                               placeholder="Ej. Max"
+                               class="form-input">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Tipo de Alerta
+                        </label>
+
+                        <select id="rep-type"
+                                class="form-input">
+
+                            <option>
+                                Perdido
+                            </option>
+
+                            <option>
+                                Encontrado
+                            </option>
+
+                            <option>
+                                Avistamiento
+                            </option>
+
+                            <option>
+                                Refugio
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid"
+                     style="display:grid;
+                            grid-template-columns:1fr 1fr;
+                            gap:14px;">
+
+                    <div class="form-group">
+
+                        <label>
+                            Especie o Raza
+                        </label>
+
+                        <input type="text"
+                               id="rep-species"
+                               required
+                               placeholder="Ej. Perro - Pastor"
+                               class="form-input">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Estado de Salud
+                        </label>
+
+                        <select id="rep-medical"
+                                class="form-input">
+
+                            <option value="Estable / Sano">
+                                Estable / Sano
+                            </option>
+
+                            <option value="Requiere Urgencia Médica">
+                                🚨 Urgencia Médica
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Ubicación Aproximada
+                    </label>
+
+                    <input type="text"
+                           id="rep-location"
+                           required
+                           placeholder="Ej. Parque Central"
+                           class="form-input">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label style="display:flex;
+                                  align-items:center;
+                                  gap:8px;
+                                  cursor:pointer;
+                                  font-size:12px;">
+
+                        <input type="checkbox"
+                               id="rep-verified"
+                               checked
+                               style="accent-color:var(--accent-brand);
+                                      width:15px;
+                                      height:15px;">
+
+                        <span>
+                            Solicitar Sello de Rescatista Verificado
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <div style="display:flex;
+                            justify-content:flex-end;
+                            gap:9px;
+                            margin-top:17px;">
+
+                    <button type="button"
+                            onclick="closeModal()"
+                            class="nav-btn">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit"
+                            class="nav-btn primary">
+
+                        <i class="fa-solid fa-paper-plane"></i>
+
+                        Enviar a Moderación
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         DONATION
+    ========================================================= -->
+
+    <div id="donation-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:420px;">
+
+            <div class="modal-header">
+
+                <h3>
+                    Centro de Donaciones
+                </h3>
+
+                <button onclick="closeDonationModal()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body"
+                 style="display:flex;
+                        flex-direction:column;
+                        gap:12px;">
+
+                <div style="text-align:center;
+                            padding:5px 0 8px;">
+
+                    <div style="font-size:38px;
+                                margin-bottom:8px;">
+
+                        🐾
+
+                    </div>
+
+                    <p style="font-size:13px;
+                              color:var(--text-muted);
+                              line-height:1.5;">
+
+                        Tu apoyo ayuda a mantener activa
+                        la infraestructura comunitaria de PawFinds.
+
+                    </p>
+
+                </div>
+
+                <button onclick="processDonation('Mantenimiento Web')"
+                        class="nav-btn primary"
+                        style="justify-content:center;">
+
+                    <i class="fa-solid fa-heart"></i>
+
+                    Donar para la Web
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CHAT
+    ========================================================= -->
+
+    <div id="chat-modal"
+         class="modal hidden">
+
+        <div class="modal-box"
+             style="max-width:520px;">
+
+            <div class="modal-header"
+                 style="background:var(--bg-app);">
+
+                <div style="display:flex;
+                            align-items:center;
+                            gap:10px;">
+
+                    <div id="chat-avatar"
+                         style="width:39px;
+                                height:39px;
+                                border-radius:12px;
+                                background:linear-gradient(135deg,#ff7043,#ff5722);
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                color:white;
+                                font-weight:900;
+                                font-size:15px;">
+
+                        M
+
+                    </div>
+
+                    <div>
+
+                        <h3 id="chat-title"
+                            style="font-size:15px;
+                                   font-weight:900;">
+
+                            Chat de Rescate
+
+                        </h3>
+
+                        <p style="font-size:10px;
+                                  color:var(--text-muted);
+                                  font-weight:800;
+                                  margin-top:2px;">
+
+                            Canal de comunicación
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button onclick="closeChat()"
+                        class="modal-close">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div id="chat-messages"
+                     class="chat-messages">
+                </div>
+
+
+                <div style="display:flex;
+                            gap:7px;
+                            align-items:center;">
+
+                    <input type="file"
+                           id="chat-file-input"
+                           accept="image/*"
+                           style="display:none;"
+                           onchange="sendChatPhoto(event)">
+
+
+                    <button type="button"
+                            onclick="document.getElementById('chat-file-input').click()"
+                            class="nav-btn chat-tool-btn"
+                            title="Enviar fotografía">
+
+                        <i class="fa-solid fa-camera"></i>
+
+                    </button>
+
+
+                    <button type="button"
+                            id="mic-btn"
+                            onclick="toggleVoiceRecording()"
+                            class="nav-btn chat-tool-btn"
+                            title="Grabar mensaje de voz">
+
+                        <i class="fa-solid fa-microphone"></i>
+
+                    </button>
+
+
+                    <input type="text"
+                           id="chat-input"
+                           placeholder="Escribe un mensaje..."
+                           class="form-input"
+                           style="padding:10px 12px;"
+                           onkeypress="handleChatKeyPress(event)">
+
+
+                    <button onclick="sendChatMessage()"
+                            class="nav-btn primary chat-tool-btn">
+
+                        <i class="fa-solid fa-paper-plane"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div style="margin-top:13px;
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:10px;">
+
+                    <button onclick="generatePoster()"
+                            style="background:none;
+                                   border:none;
+                                   color:var(--accent-brand);
+                                   font-family:inherit;
+                                   font-size:12px;
+                                   font-weight:800;
+                                   cursor:pointer;">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+
+                        Generar Cartel
+
+                    </button>
+
+
+                    <button onclick="resolveCurrentAlert()"
+                            class="nav-btn"
+                            style="background:rgba(16,185,129,.14);
+                                   color:#10b981;
+                                   border-color:rgba(16,185,129,.3);
+                                   font-size:11px;
+                                   padding:7px 10px;">
+
+                        <i class="fa-solid fa-check-circle"></i>
+
+                        Marcar como Reunido
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         POSTER
+    ========================================================= -->
+
+    <div id="poster-modal"
+         class="modal hidden">
+
+        <div class="modal-box poster-box">
+
+            <h2 style="font-size:25px;
+                       font-weight:900;
+                       color:#dc2626;
+                       margin-bottom:4px;">
+
+                ¡SE BUSCA!
+
+            </h2>
+
+            <p id="poster-type"
+               style="font-size:12px;
+                      font-weight:900;
+                      color:#d97706;
+                      margin-bottom:13px;">
+
+                MASCOTA PERDIDA
+
+            </p>
+
+
+            <img id="poster-img"
+                 src=""
+                 alt="Mascota"
+                 style="width:145px;
+                        height:145px;
+                        border-radius:14px;
+                        object-fit:cover;
+                        margin-bottom:13px;
+                        border:3px solid #f8fafc;
+                        box-shadow:0 8px 16px rgba(0,0,0,.1);">
+
+
+            <h3 id="poster-name"
+                style="font-size:21px;
+                       font-weight:900;
+                       margin-bottom:3px;">
+
+                Max
+
+            </h3>
+
+
+            <p id="poster-species"
+               style="font-size:12px;
+                      font-weight:700;
+                      color:#475569;
+                      margin-bottom:7px;">
+
+                Pastor Alemán
+
+            </p>
+
+
+            <p style="font-size:12px;
+                      font-weight:700;
+                      margin-bottom:15px;">
+
+                <i class="fa-solid fa-location-dot"
+                   style="color:#f97316;"></i>
+
+                <span id="poster-location">
+                    Parque
+                </span>
+
+            </p>
+
+
+            <div style="background:#0f172a;
+                        color:white;
+                        padding:11px;
+                        border-radius:11px;
+                        font-size:14px;
+                        font-weight:800;
+                        margin-bottom:13px;">
+
+                Contacto:
+
+                <span id="poster-contact">
+                    +57 300 123 4567
+                </span>
+
+            </div>
+
+
+            <button onclick="document.getElementById('poster-modal').classList.add('hidden')"
+                    class="nav-btn"
+                    style="justify-content:center;
+                           width:100%;">
+
+                Cerrar
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         TOAST
+    ========================================================= -->
+
+    <div id="toast"
+         class="toast-notification">
+
+        <i class="fa-solid fa-circle-check"
+           style="color:#4ade80;
+                  font-size:18px;"></i>
+
+        <span id="toast-message">
+            Action completed
+        </span>
+
+    </div>
+
+
+    <!-- LEAFLET -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            onAuthStateChanged
+        }
+        from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            onSnapshot,
+            serverTimestamp,
+            query,
+            orderBy,
+            updateDoc,
+            doc
+        }
+        from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+        /* =====================================================
+           FIREBASE
+        ==================================================== */
+
+        const appId =
+            typeof __app_id !== 'undefined'
+                ? __app_id
+                : 'pawfinds-default-app';
+
+
+        const firebaseConfig = {
+
+            apiKey:
+                "AIzaSyDdAnEVWzlOA9ZLT_06cZbRtYg5QAYLeMQ",
+
+            authDomain:
+                "pawfinds-3b0ab.firebaseapp.com",
+
+            projectId:
+                "pawfinds-3b0ab",
+
+            storageBucket:
+                "pawfinds-3b0ab.firebasestorage.app",
+
+            messagingSenderId:
+                "739215489337",
+
+            appId:
+                "1:739215489337:web:a20ef19c914e2aa13890e8",
+
+            measurementId:
+                "G-PH698E3JLQ"
+        };
+
+
+        let app;
+        let db;
+        let auth;
+
+        let currentUser = null;
+
+        try {
+
+            app = initializeApp(firebaseConfig);
+
+            db = getFirestore(app);
+
+            auth = getAuth(app);
+
+        } catch (e) {
+
+            console.warn(
+                "Firebase Init Fallback:",
+                e
+            );
+
+        }
+
+
+        const ADMIN_EMAIL =
+            "moralesyonatan.unlp@gmail.com";
+
+
+        let leafletMap = null;
+        let mapMarkersLayer = null;
+
+
+        /* =====================================================
+           ESTADO
+        ==================================================== */
+
+        window.userLat = 6.2785;
+        window.userLng = -75.4428;
+
+        window.activeAlert = null;
+
+        window.activeFilter = 'all';
+
+        window.activeRadiusKm =
+            Number(
+                localStorage.getItem(
+                    'pawfinds_radius'
+                )
+            ) || 10;
+
+
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+
+        /* =====================================================
+           ALERTAS
+        ==================================================== */
+
+        const defaultAlerts = [
+
+            {
+                id: 1,
+                name: "Max",
+                type: "Perdido",
+                species: "Perro - Pastor Alemán",
+                location: "Parque Principal Guarne",
+                lat: 6.2785,
+                lng: -75.4428,
+                image:
+                    "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=400&q=80",
+                contact: "+57 300 123 4567",
+                verified: true,
+                medical: "Requiere Urgencia Médica",
+                status: "approved"
+            },
+
+            {
+                id: 2,
+                name: "Luna",
+                type: "Encontrado",
+                species: "Gato - Siamés",
+                location: "Sector Vereda Guarne",
+                lat: 6.2840,
+                lng: -75.4350,
+                image:
+                    "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80",
+                contact: "+57 310 987 6543",
+                verified: false,
+                medical: "Estable / Sano",
+                status: "approved"
+            },
+
+            {
+                id: 3,
+                name: "Rocky",
+                type: "Avistamiento",
+                species: "Perro - Bulldog Francés",
+                location: "Autopista Medellín-Bogotá",
+                lat: 6.2890,
+                lng: -75.4520,
+                image:
+                    "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80",
+                contact: "+57 320 555 1234",
+                verified: true,
+                medical: "Estable / Sano",
+                status: "approved"
+            },
+
+            {
+                id: 4,
+                name: "Refugio Patitas Felices",
+                type: "Refugio",
+                species:
+                    "🏥 Centro de Rescate y Urgencias 24/7",
+                location: "Vía Guarne - Rionegro",
+                lat: 6.2650,
+                lng: -75.4180,
+                image:
+                    "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80",
+                contact: "+57 315 888 9999",
+                verified: true,
+                medical: "Estable / Sano",
+                status: "approved"
+            }
+
+        ];
+
+
+        window.alertsData = [];
+
+
+        window.chatHistories =
+            JSON.parse(
+                localStorage.getItem(
+                    'pawfinds_chats'
+                )
+            ) || {};
+
+
+        window.successComments =
+            JSON.parse(
+                localStorage.getItem(
+                    'pawfinds_success_comments'
+                )
+            ) || {};
+
+
+        /* =====================================================
+           ADMIN
+        ==================================================== */
+
+        function esAdmin() {
+
+            const user =
+                auth?.currentUser;
+
+            return Boolean(
+                user &&
+                user.email === ADMIN_EMAIL
+            );
+        }
+
+
+        function verificarPanelAdminVisual() {
+
+            const panel =
+                document.getElementById(
+                    "admin-panel-section"
+                );
+
+            if (!panel) return;
+
+
+            if (esAdmin()) {
+
+                panel.style.display =
+                    "block";
+
+                renderizarBandejaPendientes();
+
+            } else {
+
+                panel.style.display =
+                    "none";
+
+            }
+        }
+
+
+        window.renderizarBandejaPendientes =
+        function() {
+
+            const contenedor =
+                document.getElementById(
+                    "lista-pendientes-admin"
+                );
+
+            if (!contenedor) return;
+
+
+            const stored =
+                window.alertsData || [];
+
+
+            const pendientes =
+                stored.filter(
+                    a =>
+                        a.status === "pending"
+                );
+
+
+            if (!pendientes.length) {
+
+                contenedor.innerHTML = `
+
+                    <p style="
+                        margin:0;
+                        color:#856404;
+                        font-size:12px;
+                        font-weight:700;
+                    ">
+
+                        No hay anuncios pendientes
+                        de aprobación.
+
+                    </p>
+
+                `;
+
+                return;
+            }
+
+
+            contenedor.innerHTML =
+                pendientes.map(item => `
+
+                    <div class="admin-pending-item">
+
+                        <span style="
+                            font-size:12px;
+                            font-weight:800;
+                        ">
+
+                            <b>${escapeHTML(item.name)}</b>
+                            (${escapeHTML(item.type)})
+
+                        </span>
+
+                        <div style="
+                            display:flex;
+                            gap:5px;
+                        ">
+
+                            <button
+                                onclick="aprobarAnuncio('${item.id}')"
+                                class="nav-btn primary"
+                                style="
+                                    padding:4px 8px;
+                                    min-height:28px;
+                                    font-size:10px;
+                                ">
+
+                                Aprobar
+
+                            </button>
+
+                            <button
+                                onclick="rechazarAnuncio('${item.id}')"
+                                class="nav-btn"
+                                style="
+                                    padding:4px 8px;
+                                    min-height:28px;
+                                    font-size:10px;
+                                    color:#ef4444;
+                                ">
+
+                                Rechazar
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `).join('');
+
+        };
+
+
+        window.aprobarAnuncio =
+        async function(id) {
+            try {
+                if (!db) throw new Error("Firestore no inicializado.");
+                await updateDoc(
+                    doc(db, 'alerts', String(id)),
+                    {
+                        status: "approved"
+                    }
+                );
+                showToast("✅ Anuncio aprobado en Firestore.");
+            } catch (err) {
+                console.error("Error al aprobar anuncio en Firestore:", err);
+                showToast("⚠️ Error al aprobar el anuncio en la nube.");
+            }
+        };
+
+
+        window.rechazarAnuncio =
+        async function(id) {
+            try {
+                if (!db) throw new Error("Firestore no inicializado.");
+                await updateDoc(
+                    doc(db, 'alerts', String(id)),
+                    {
+                        status: "rejected"
+                    }
+                );
+                showToast("❌ Anuncio rechazado en Firestore.");
+            } catch (err) {
+                console.error("Error al rechazar anuncio en Firestore:", err);
+                showToast("⚠️ Error al rechazar el anuncio en la nube.");
+            }
+        };
+
+
+        /* =====================================================
+           DISTANCIAS
+        ==================================================== */
+
+        window.calculateDistance =
+        function(
+            lat1,
+            lon1,
+            lat2,
+            lon2
+        ) {
+
+            const R = 6371;
+
+            const dLat =
+                (lat2 - lat1)
+                * Math.PI / 180;
+
+            const dLon =
+                (lon2 - lon1)
+                * Math.PI / 180;
+
+
+            const a =
+                Math.sin(dLat / 2) ** 2 +
+
+                Math.cos(
+                    lat1 * Math.PI / 180
+                ) *
+
+                Math.cos(
+                    lat2 * Math.PI / 180
+                ) *
+
+                Math.sin(dLon / 2) ** 2;
+
+
+            const c =
+                2 *
+                Math.atan2(
+                    Math.sqrt(a),
+                    Math.sqrt(1 - a)
+                );
+
+
+            const d =
+                R * c;
+
+
+            return d < 1
+                ? `${Math.round(d * 1000)} m`
+                : `${d.toFixed(1)} km`;
+
+        };
+
+
+        function distanceKm(
+            lat1,
+            lon1,
+            lat2,
+            lon2
+        ) {
+
+            const R = 6371;
+
+            const dLat =
+                (lat2 - lat1)
+                * Math.PI / 180;
+
+            const dLon =
+                (lon2 - lon1)
+                * Math.PI / 180;
+
+
+            const a =
+                Math.sin(dLat / 2) ** 2 +
+
+                Math.cos(
+                    lat1 * Math.PI / 180
+                ) *
+
+                Math.cos(
+                    lat2 * Math.PI / 180
+                ) *
+
+                Math.sin(dLon / 2) ** 2;
+
+
+            return R *
+                2 *
+                Math.atan2(
+                    Math.sqrt(a),
+                    Math.sqrt(1 - a)
+                );
+
+        }
+
+
+        /* =====================================================
+           HELPERS
+        ==================================================== */
+
+        function escapeHTML(value) {
+
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+
+        }
+
+
+        function getActiveAlerts() {
+
+            return window.alertsData
+                .filter(
+                    a =>
+                        (
+                            a.status === "approved" ||
+                            !a.status
+                        ) &&
+                        a.type !== "Reunido"
+                );
+
+        }
+
+
+        function isInsideRadius(alert) {
+
+            if (
+                !alert.lat ||
+                !alert.lng
+            ) {
+                return true;
+            }
+
+
+            return distanceKm(
+                window.userLat,
+                window.userLng,
+                alert.lat,
+                alert.lng
+            ) <= window.activeRadiusKm;
+
+        }
+
+        /* =====================================================
+           FIRESTORE LISTENER
+        ==================================================== */
+
+        function suscribirAlertasFirestore() {
+            if (!db) return;
+
+            const q = query(
+                collection(db, 'alerts'),
+                orderBy('createdAt', 'desc')
+            );
+
+            onSnapshot(q, (snapshot) => {
+                const cloudAlerts = [];
+                
+                snapshot.forEach(docSnap => {
+                    cloudAlerts.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                window.alertsData = cloudAlerts;
+
+                verificarPanelAdminVisual();
+                renderAlerts(window.activeFilter);
+                renderMapPins();
+            }, (error) => {
+                console.error("Error en onSnapshot de Firestore:", error);
+                showToast("⚠️ Error al sincronizar con la base de datos.");
+            });
+        }
+
+        /* =====================================================
+           INIT
+        ==================================================== */
+
+        window.onload =
+        function() {
+
+            const radius =
+                document.getElementById(
+                    'radius-select'
+                );
+
+            if (radius) {
+
+                radius.value =
+                    String(
+                        window.activeRadiusKm
+                    );
+
+            }
+
+            initLeafletMap();
+            suscribirAlertasFirestore();
+
+
+            if (auth) {
+
+                onAuthStateChanged(
+                    auth,
+                    (user) => {
+
+                        currentUser =
+                            user;
+
+                        verificarPanelAdminVisual();
+
+
+                        const authText =
+                            document.getElementById(
+                                'auth-btn-text'
+                            );
+
+
+                        if (authText) {
+
+                            authText.innerText =
+                                user
+                                    ? (
+                                        user.displayName ||
+                                        user.email ||
+                                        "Verificado"
+                                    )
+                                    : "Ingresar";
+
+                        }
+
+                    }
+                );
+
+            }
+
+        };
+
+
+        /* =====================================================
+           LEAFLET
+        ==================================================== */
+
+        function initLeafletMap() {
+
+            if (leafletMap) return;
+
+
+            leafletMap =
+                L.map(
+                    'real-leaflet-map',
+                    {
+                        zoomControl: false
+                    }
+                )
+                .setView(
+                    [6.2785, -75.4428],
+                    14.5
+                );
+
+
+            L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom: 19,
+
+                    attribution:
+                        '&copy; OpenStreetMap'
+                }
+            ).addTo(
+                leafletMap
+            );
+
+
+            mapMarkersLayer =
+                L.layerGroup()
+                    .addTo(
+                        leafletMap
+                    );
+
+
+            setTimeout(
+                () => {
+
+                    leafletMap.invalidateSize();
+
+                    renderMapPins();
+
+                },
+                350
+            );
+
+        }
+
+
+        /* =====================================================
+           MAP PINS
+        ==================================================== */
+
+        window.renderMapPins =
+        function() {
+
+            if (
+                !leafletMap ||
+                !mapMarkersLayer
+            ) {
+                return;
+            }
+
+
+            mapMarkersLayer.clearLayers();
+
+
+            const activeList =
+                getActiveAlerts()
+                    .filter(
+                        isInsideRadius
+                    );
+
+
+            activeList.forEach(
+                alert => {
+
+                    if (
+                        !alert.lat ||
+                        !alert.lng
+                    ) {
+                        return;
+                    }
+
+
+                    let colorHex =
+                        '#ef4444';
+
+                    let iconClass =
+                        'fa-dog';
+
+
+                    if (
+                        alert.type ===
+                        'Encontrado'
+                    ) {
+
+                        colorHex =
+                            '#f59e0b';
+
+                        iconClass =
+                            'fa-cat';
+
+                    }
+
+                    else if (
+                        alert.type ===
+                        'Avistamiento'
+                    ) {
+
+                        colorHex =
+                            '#3b82f6';
+
+                        iconClass =
+                            'fa-binoculars';
+
+                    }
+
+                    else if (
+                        alert.type ===
+                        'Refugio'
+                    ) {
+
+                        colorHex =
+                            '#10b981';
+
+                        iconClass =
+                            'fa-hospital';
+
+                    }
+
+
+                    const customIcon =
+                        L.divIcon({
+
+                            className:
+                                'custom-map-radar-pin',
+
+                            html: `
+
+                                <div class="radar-pin-wrapper">
+
+                                    <div
+                                        class="radar-pulse-ring"
+                                        style="
+                                            --radar-color:${colorHex};
+                                        ">
+                                    </div>
+
+                                    <div
+                                        class="radar-core-icon"
+                                        style="
+                                            --radar-color:${colorHex};
+                                            background-color:${colorHex};
+                                        ">
+
+                                        <i class="
+                                            fa-solid
+                                            ${iconClass}
+                                        "></i>
+
+                                    </div>
+
+                                </div>
+
+                            `,
+
+                            iconSize:
+                                [50,50],
+
+                            iconAnchor:
+                                [25,25]
+
+                        });
+
+
+                    const marker =
+                        L.marker(
+                            [
+                                alert.lat,
+                                alert.lng
+                            ],
+                            {
+                                icon:
+                                    customIcon
+                            }
+                        )
+                        .addTo(
+                            mapMarkersLayer
+                        );
+
+
+                    const gmapsUrl =
+                        `https://www.google.com/maps/search/?api=1&query=${alert.lat},${alert.lng}`;
+
+
+                    const wazeUrl =
+                        `https://waze.com/ul?ll=${alert.lat},${alert.lng}&navigate=yes`;
+
+
+                    marker.bindPopup(`
+
+                        <div style="
+                            font-family:'Plus Jakarta Sans',sans-serif;
+                            text-align:center;
+                            min-width:170px;
+                        ">
+
+                            <img
+                                src="${escapeHTML(alert.image)}"
+                                style="
+                                    width:100px;
+                                    height:75px;
+                                    border-radius:10px;
+                                    object-fit:cover;
+                                    margin-bottom:7px;
+                                "
+                            >
+
+                            <h4 style="
+                                font-size:13px;
+                                font-weight:900;
+                                margin-bottom:3px;
+                            ">
+
+                                ${escapeHTML(alert.name)}
+
+                            </h4>
+
+                            <p style="
+                                font-size:10px;
+                                color:#64748b;
+                                margin-bottom:9px;
+                            ">
+
+                                <b>
+                                    ${escapeHTML(alert.type)}
+                                </b>
+
+                                <br>
+
+                                ${escapeHTML(alert.location)}
+
+                            </p>
+
+                            <div style="
+                                display:flex;
+                                gap:6px;
+                                justify-content:center;
+                            ">
+
+                                <a
+                                    href="${gmapsUrl}"
+                                    target="_blank"
+                                    style="
+                                        background:#3b82f6;
+                                        color:white;
+                                        padding:6px 9px;
+                                        border-radius:6px;
+                                        font-size:10px;
+                                        text-decoration:none;
+                                        font-weight:800;
+                                    "
+                                >
+
+                                    <i class="fa-solid fa-map"></i>
+                                    Maps
+
+                                </a>
+
+                                <a
+                                    href="${wazeUrl}"
+                                    target="_blank"
+                                    style="
+                                        background:#06b6d4;
+                                        color:white;
+                                        padding:6px 9px;
+                                        border-radius:6px;
+                                        font-size:10px;
+                                        text-decoration:none;
+                                        font-weight:800;
+                                    "
+                                >
+
+                                    <i class="fa-solid fa-car"></i>
+                                    Waze
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    `);
+
+
+                    marker.on(
+                        'click',
+                        () =>
+                            selectAlert(
+                                alert.id
+                            )
+                    );
+
+                }
+            );
+
+        };
+
+
+        /* =====================================================
+           THEME
+        ==================================================== */
+
+        window.toggleTheme =
+        function() {
+
+            const body =
+                document.body;
+
+            const icon =
+                document.getElementById(
+                    'theme-icon'
+                );
+
+            const text =
+                document.getElementById(
+                    'theme-text'
+                );
+
+
+            if (
+                body.classList.contains(
+                    'dark'
+                )
+            ) {
+
+                body.classList.remove(
+                    'dark'
+                );
+
+                body.classList.add(
+                    'light'
+                );
+
+
+                icon.className =
+                    'fa-solid fa-moon';
+
+                icon.style.color =
+                    '#6366f1';
+
+
+                text.innerText =
+                    'Modo Claro';
+
+
+                localStorage.setItem(
+                    'pawfinds_theme',
+                    'light'
+                );
+
+
+                showToast(
+                    "☀️ Modo Luminoso Activado"
+                );
+
+            }
+
+            else {
+
+                body.classList.remove(
+                    'light'
+                );
+
+                body.classList.add(
+                    'dark'
+                );
+
+
+                icon.className =
+                    'fa-solid fa-sun';
+
+                icon.style.color =
+                    '#fbbf24';
+
+
+                text.innerText =
+                    'Modo Oscuro';
+
+
+                localStorage.setItem(
+                    'pawfinds_theme',
+                    'dark'
+                );
+
+
+                showToast(
+                    "🌙 Modo Oscuro Activado"
+                );
+
+            }
+
+        };
+
+
+        const savedTheme =
+            localStorage.getItem(
+                'pawfinds_theme'
+            );
+
+
+        if (savedTheme === 'light') {
+
+            document.body.classList.remove(
+                'dark'
+            );
+
+            document.body.classList.add(
+                'light'
+            );
+
+            setTimeout(() => {
+
+                const icon =
+                    document.getElementById(
+                        'theme-icon'
+                    );
+
+                const text =
+                    document.getElementById(
+                        'theme-text'
+                    );
+
+                if (icon) {
+
+                    icon.className =
+                        'fa-solid fa-moon';
+
+                    icon.style.color =
+                        '#6366f1';
+
+                }
+
+                if (text) {
+
+                    text.innerText =
+                        'Modo Claro';
+
+                }
+
+            }, 0);
+
+        }
+
+
+        /* =====================================================
+           RENDER ALERTS
+        ==================================================== */
+
+        window.renderAlerts =
+        function(filter) {
+
+            window.activeFilter =
+                filter;
+
+
+            const container =
+                document.getElementById(
+                    'alerts-list'
+                );
+
+
+            container.innerHTML =
+                '';
+
+
+            let activeList =
+                getActiveAlerts()
+                    .filter(
+                        isInsideRadius
+                    );
+
+
+            if (filter !== 'all') {
+
+                activeList =
+                    activeList.filter(
+                        a =>
+                            a.type ===
+                            filter
+                    );
+
+            }
+
+
+            activeList.sort(
+                (a,b) => {
+
+                    if (
+                        !a.lat ||
+                        !a.lng
+                    ) return 1;
+
+                    if (
+                        !b.lat ||
+                        !b.lng
+                    ) return -1;
+
+
+                    return (
+                        distanceKm(
+                            window.userLat,
+                            window.userLng,
+                            a.lat,
+                            a.lng
+                        ) -
+
+                        distanceKm(
+                            window.userLat,
+                            window.userLng,
+                            b.lat,
+                            b.lng
+                        )
+                    );
+
+                }
+            );
+
+
+            if (!activeList.length) {
+
+                container.innerHTML = `
+
+                    <div style="
+                        text-align:center;
+                        padding:55px 20px;
+                        color:var(--text-muted);
+                    ">
+
+                        <div style="
+                            width:55px;
+                            height:55px;
+                            margin:0 auto 12px;
+                            border-radius:17px;
+                            background:var(--surface-card);
+                            border:1px solid var(--border-line);
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            color:var(--accent-brand);
+                            font-size:22px;
+                        ">
+
+                            <i class="fa-solid fa-paw"></i>
+
+                        </div>
+
+                        <p style="
+                            font-size:13px;
+                            font-weight:800;
+                        ">
+
+                            No hay elementos activos
+                            en esta categoría.
+
+                        </p>
+
+                        <p style="
+                            font-size:11px;
+                            margin-top:5px;
+                        ">
+
+                            Prueba ampliando el radio
+                            de búsqueda.
+
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            activeList.forEach(
+                alert => {
+
+                    let badgeClass =
+                        'badge-perdido';
+
+
+                    if (
+                        alert.type ===
+                        'Encontrado'
+                    ) {
+
+                        badgeClass =
+                            'badge-encontrado';
+
+                    }
+
+                    else if (
+                        alert.type ===
+                        'Avistamiento'
+                    ) {
+
+                        badgeClass =
+                            'badge-avistamiento';
+
+                    }
+
+                    else if (
+                        alert.type ===
+                        'Refugio'
+                    ) {
+
+                        badgeClass =
+                            'badge-refugio';
+
+                    }
+
+
+                    const distanceText =
+                        alert.lat &&
+                        alert.lng
+
+                            ? `A ${
+                                window.calculateDistance(
+                                    window.userLat,
+                                    window.userLng,
+                                    alert.lat,
+                                    alert.lng
+                                )
+                              } de ti`
+
+                            : alert.location;
+
+
+                    const card =
+                        document.createElement(
+                            'div'
+                        );
+
+
+                    card.className =
+                        'rescue-card';
+
+
+                    card.id =
+                        `card-${alert.id}`;
+
+
+                    card.onclick =
+                        () =>
+                            openChat(
+                                alert
+                            );
+
+
+                    const verifiedBadge =
+                        alert.verified
+
+                            ? `
+                                <span
+                                    style="
+                                        color:#3b82f6;
+                                        margin-left:4px;
+                                    "
+                                    title="Verificado"
+                                >
+
+                                    <i class="
+                                        fa-solid
+                                        fa-shield-check
+                                    "></i>
+
+                                </span>
+                              `
+
+                            : '';
+
+
+                    const healthUrgent =
+                        alert.medical ===
+                        'Requiere Urgencia Médica';
+
+
+                    const healthTagClass =
+                        healthUrgent
+                            ? 'health-urgent'
+                            : 'health-stable';
+
+
+                    const healthIcon =
+                        healthUrgent
+                            ? 'fa-triangle-exclamation'
+                            : 'fa-circle-check';
+
+
+                    card.innerHTML = `
+
+                        <img
+                            src="${escapeHTML(alert.image)}"
+                            alt="${escapeHTML(alert.name)}"
+                            loading="lazy"
+                        >
+
+
+                        <div class="rescue-content">
+
+                            <div class="rescue-title-row">
+
+                                <h4 class="rescue-name">
+
+                                    ${escapeHTML(alert.name)}
+
+                                    ${verifiedBadge}
+
+                                </h4>
+
+
+                                <span class="
+                                    status-badge
+                                    ${badgeClass}
+                                ">
+
+                                    ${escapeHTML(alert.type)}
+
+                                </span>
+
+                            </div>
+
+
+                            <p class="rescue-species">
+
+                                ${escapeHTML(alert.species)}
+
+                            </p>
+
+
+                            <p class="rescue-location">
+
+                                <i
+                                    class="fa-solid fa-location-dot"
+                                    style="
+                                        color:var(--accent-brand);
+                                    "
+                                ></i>
+
+                                ${escapeHTML(distanceText)}
+
+                            </p>
+
+
+                            <div>
+
+                                <span class="
+                                    health-tag
+                                    ${healthTagClass}
+                                ">
+
+                                    <i class="
+                                        fa-solid
+                                        ${healthIcon}
+                                    "></i>
+
+                                    ${escapeHTML(alert.medical)}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+                    container.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+        };
+
+
+        /* =====================================================
+           SUCCESS STORIES
+        ==================================================== */
+
+        window.renderSuccessStories =
+        function() {
+
+            const container =
+                document.getElementById(
+                    'success-stories-list'
+                );
+
+
+            if (!container) return;
+
+
+            container.innerHTML =
+                '';
+
+
+            const reunidosList =
+                window.alertsData.filter(
+                    a =>
+                        a.type ===
+                        'Reunido'
+                );
+
+
+            if (!reunidosList.length) {
+
+                container.innerHTML = `
+
+                    <div style="
+                        text-align:center;
+                        padding:35px 20px;
+                    ">
+
+                        <div style="
+                            width:60px;
+                            height:60px;
+                            margin:0 auto 13px;
+                            border-radius:18px;
+                            background:rgba(99,102,241,.12);
+                            color:#818cf8;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:24px;
+                        ">
+
+                            <i class="
+                                fa-solid
+                                fa-heart-circle-check
+                            "></i>
+
+                        </div>
+
+                        <p style="
+                            color:var(--text-muted);
+                            font-size:13px;
+                            font-weight:800;
+                        ">
+
+                            Aún no hay historias
+                            de reencuentros registradas.
+
+                        </p>
+
+                        <p style="
+                            color:var(--text-soft);
+                            font-size:11px;
+                            margin-top:5px;
+                        ">
+
+                            Los casos resueltos aparecerán aquí.
+
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            reunidosList.forEach(
+                item => {
+
+                    const comments =
+                        window.successComments[
+                            item.id
+                        ] || [];
+
+
+                    let commentsHtml =
+                        '';
+
+
+                    comments.forEach(
+                        c => {
+
+                            const badgeColor =
+                                c.type ===
+                                'conformidad'
+                                    ? '#10b981'
+                                    : '#ef4444';
+
+
+                            commentsHtml += `
+
+                                <div class="comment-item">
+
+                                    <div style="
+                                        display:flex;
+                                        justify-content:space-between;
+                                        gap:8px;
+                                        margin-bottom:3px;
+                                    ">
+
+                                        <strong>
+                                            ${escapeHTML(c.user)}
+                                        </strong>
+
+                                        <span style="
+                                            font-size:9px;
+                                            font-weight:900;
+                                            color:${badgeColor};
+                                            text-transform:uppercase;
+                                        ">
+
+                                            ${escapeHTML(c.type)}
+
+                                        </span>
+
+                                    </div>
+
+                                    <p style="
+                                        margin:0;
+                                        color:var(--text-muted);
+                                    ">
+
+                                        ${escapeHTML(c.text)}
+
+                                    </p>
+
+                                </div>
+
+                            `;
+
+                        }
+                    );
+
+
+                    const card =
+                        document.createElement(
+                            'div'
+                        );
+
+
+                    card.className =
+                        'success-story-card';
+
+
+                    card.innerHTML = `
+
+                        <div style="
+                            display:flex;
+                            gap:14px;
+                            align-items:flex-start;
+                            margin-bottom:13px;
+                        ">
+
+                            <img
+                                src="${escapeHTML(item.image)}"
+                                alt="${escapeHTML(item.name)}"
+                                class="success-story-image"
+                            >
+
+
+                            <div style="
+                                flex:1;
+                                min-width:0;
+                            ">
+
+                                <div style="
+                                    display:flex;
+                                    align-items:center;
+                                    gap:6px;
+                                    flex-wrap:wrap;
+                                    margin-bottom:4px;
+                                ">
+
+                                    <h4 style="
+                                        font-size:15px;
+                                        font-weight:900;
+                                    ">
+
+                                        ${escapeHTML(item.name)}
+
+                                    </h4>
+
+                                    <span class="
+                                        status-badge
+                                        badge-reunido
+                                    ">
+
+                                        Reunido
+
+                                    </span>
+
+                                </div>
+
+
+                                <p style="
+                                    font-size:11px;
+                                    color:var(--text-muted);
+                                    font-weight:700;
+                                    margin-bottom:4px;
+                                ">
+
+                                    ${escapeHTML(item.species)}
+
+                                    •
+                                    ${escapeHTML(item.location)}
+
+                                </p>
+
+
+                                <p style="
+                                    font-size:12px;
+                                    color:var(--text-main);
+                                    line-height:1.45;
+                                ">
+
+                                    🎉 Caso resuelto
+                                    satisfactoriamente por
+                                    la comunidad.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div style="
+                            border-top:1px solid var(--border-line);
+                            padding-top:11px;
+                        ">
+
+                            <p style="
+                                font-size:11px;
+                                font-weight:900;
+                                color:var(--text-muted);
+                                margin-bottom:7px;
+                            ">
+
+                                <i
+                                    class="fa-solid fa-comments"
+                                    style="color:#818cf8;"
+                                ></i>
+
+                                Opiniones y Conformidad
+
+                            </p>
+
+
+                            <div>
+
+                                ${
+                                    commentsHtml ||
+                                    `
+                                    <p style="
+                                        font-size:10px;
+                                        color:var(--text-soft);
+                                        margin-bottom:7px;
+                                    ">
+                                        Todavía no hay opiniones.
+                                    </p>
+                                    `
+                                }
+
+                            </div>
+
+
+                            <div style="
+                                display:grid;
+                                grid-template-columns:1fr 115px auto;
+                                gap:6px;
+                                margin-top:7px;
+                            ">
+
+                                <input
+                                    type="text"
+                                    id="comment-input-${item.id}"
+                                    placeholder="Deja tu comentario..."
+                                    class="form-input"
+                                    style="
+                                        padding:7px 9px;
+                                        font-size:11px;
+                                    "
+                                >
+
+
+                                <select
+                                    id="comment-type-${item.id}"
+                                    class="form-input"
+                                    style="
+                                        padding:7px;
+                                        font-size:10px;
+                                    "
+                                >
+
+                                    <option value="conformidad">
+                                        👍 Conforme
+                                    </option>
+
+                                    <option value="inconformidad">
+                                        👎 Inconforme
+                                    </option>
+
+                                </select>
+
+
+                                <button
+                                    onclick="addSuccessComment('${item.id}')"
+                                    class="nav-btn primary"
+                                    style="
+                                        padding:7px 11px;
+                                        font-size:10px;
+                                    "
+                                >
+
+                                    Comentar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+                    container.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+        };
+
+
+        window.addSuccessComment =
+        function(alertId) {
+
+            const input =
+                document.getElementById(
+                    `comment-input-${alertId}`
+                );
+
+
+            const selectType =
+                document.getElementById(
+                    `comment-type-${alertId}`
+                );
+
+
+            if (!input || !selectType)
+                return;
+
+
+            const text =
+                input.value.trim();
+
+
+            if (!text) {
+
+                showToast(
+                    "✏️ Escribe un comentario primero."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !window.successComments[
+                    alertId
+                ]
+            ) {
+
+                window.successComments[
+                    alertId
+                ] = [];
+
+            }
+
+
+            const username =
+                currentUser
+
+                    ? (
+                        currentUser.displayName ||
+                        currentUser.email?.split('@')[0] ||
+                        'Usuario'
+                    )
+
+                    : 'Anónimo';
+
+
+            window.successComments[
+                alertId
+            ].push({
+
+                user:
+                    username,
+
+                text:
+                    text,
+
+                type:
+                    selectType.value
+
+            });
+
+
+            localStorage.setItem(
+                'pawfinds_success_comments',
+                JSON.stringify(
+                    window.successComments
+                )
+            );
+
+
+            renderSuccessStories();
+
+
+            showToast(
+                "💬 Comentario publicado."
+            );
+
+        };
+
+
+        /* =====================================================
+           FILTER
+        ==================================================== */
+
+        window.filterAlerts =
+        function(
+            type,
+            btn
+        ) {
+
+            document
+                .querySelectorAll(
+                    '.filter-tab'
+                )
+                .forEach(
+                    b =>
+                        b.classList.remove(
+                            'active'
+                        )
+                );
+
+
+            if (btn) {
+
+                btn.classList.add(
+                    'active'
+                );
+
+            }
+
+
+            renderAlerts(type);
+
+        };
+
+
+        /* =====================================================
+           RADIUS
+        ==================================================== */
+
+        window.updateRadius =
+        function(km) {
+
+            window.activeRadiusKm =
+                Number(km);
+
+
+            localStorage.setItem(
+                'pawfinds_radius',
+                String(km)
+            );
+
+
+            renderAlerts(
+                window.activeFilter
+            );
+
+            renderMapPins();
+
+
+            showToast(
+                `📡 Radio actualizado a ${km} km`
+            );
+
+        };
+
+
+        /* =====================================================
+           SELECT ALERT
+        ==================================================== */
+
+        window.selectAlert =
+        function(id) {
+
+            document
+                .querySelectorAll(
+                    '.rescue-card'
+                )
+                .forEach(
+                    c =>
+                        c.classList.remove(
+                            'highlighted'
+                        )
+                );
+
+
+            const card =
+                document.getElementById(
+                    `card-${id}`
+                );
+
+
+            if (card) {
+
+                card.scrollIntoView({
+
+                    behavior:
+                        'smooth',
+
+                    block:
+                        'center'
+
+                });
+
+
+                card.classList.add(
+                    'highlighted'
+                );
+
+
+                setTimeout(
+                    () =>
+                        card.classList.remove(
+                            'highlighted'
+                        ),
+                    2500
+                );
+
+            }
+
+
+            const targetAlert =
+                window.alertsData.find(
+                    a =>
+                        a.id === id
+                );
+
+
+            if (
+                targetAlert &&
+                targetAlert.lat &&
+                targetAlert.lng &&
+                leafletMap
+            ) {
+
+                leafletMap.setView(
+                    [
+                        targetAlert.lat,
+                        targetAlert.lng
+                    ],
+                    16,
+                    {
+                        animate:true
+                    }
+                );
+
+                leafletMap.invalidateSize();
+
+            }
+
+        };
+
+
+        /* =====================================================
+           MODALES
+        ==================================================== */
+
+        window.openModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'report-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'report-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openDonationModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'donation-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeDonationModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'donation-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openSuccessStoriesModal =
+            function() {
+
+                renderSuccessStories();
+
+                document
+                    .getElementById(
+                        'success-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeSuccessStoriesModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'success-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openSupportModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'support-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeSupportModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'support-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openTriageModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'triage-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeTriageModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'triage-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openAuthModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'auth-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeAuthModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'auth-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.openAdminAuthModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'admin-pin-input'
+                    )
+                    .value = '';
+
+
+                document
+                    .getElementById(
+                        'admin-auth-modal'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
+            };
+
+
+        window.closeAdminAuthModal =
+            function() {
+
+                document
+                    .getElementById(
+                        'admin-auth-modal'
+                    )
+                    .classList.add(
+                        'hidden'
+                    );
+
+            };
+
+
+        /* =====================================================
+           ADMIN PASSWORD
+        ==================================================== */
+
+        window.verifyAdminPassword =
+        function(e) {
+
+            e.preventDefault();
+
+
+            const pin =
+                document.getElementById(
+                    'admin-pin-input'
+                ).value;
+
+
+            if (
+                pin === '2026' ||
+                pin === 'admin123'
+            ) {
+
+                closeAdminAuthModal();
+
+                openAdminModal();
+
+                showToast(
+                    "🔓 ¡Bienvenido Fundador!"
+                );
+
+            }
+
+            else {
+
+                showToast(
+                    "❌ PIN incorrecto."
+                );
+
+            }
+
+        };
+
+
+        window.openAdminModal =
+        function() {
+
+            document
+                .getElementById(
+                    'admin-total-alerts'
+                )
+                .innerText =
+                    window.alertsData.filter(
+                        a =>
+                            a.type !==
+                            'Reunido'
+                    ).length;
+
+
+            document
+                .getElementById(
+                    'admin-modal'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+        };
+
+
+        window.closeAdminModal =
+        function() {
+
+            document
+                .getElementById(
+                    'admin-modal'
+                )
+                .classList.add(
+                    'hidden'
+                );
+
+        };
+
+
+        /* =====================================================
+           DONATION
+        ==================================================== */
+
+        window.processDonation =
+        function(cause) {
+
+            closeDonationModal();
+
+            showToast(
+                `💖 ¡Gracias por apoyar "${cause}"!`
+            );
+
+        };
+
+
+        /* =====================================================
+           SUBMIT REPORT
+        ==================================================== */
+
+        window.handleSubmit =
+        async function(e) {
+
+            e.preventDefault();
+
+            if (!currentUser) {
+                showToast("⚠️ Debes iniciar sesión con Google para crear un reporte.");
+                return;
+            }
+
+            const newAlert = {
+                name: document.getElementById('rep-name').value.trim(),
+                type: document.getElementById('rep-type').value,
+                species: document.getElementById('rep-species').value.trim(),
+                location: document.getElementById('rep-location').value.trim(),
+                lat: window.userLat + (Math.random() - .5) * .015,
+                lng: window.userLng + (Math.random() - .5) * .015,
+                image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80",
+                contact: currentUser.email,
+                verified: document.getElementById('rep-verified').checked,
+                medical: document.getElementById('rep-medical').value,
+                status: "pending",
+                userId: currentUser.uid,
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                if (!db) throw new Error("Firestore no está inicializado.");
+                
+                await addDoc(collection(db, 'alerts'), newAlert);
+                
+                showToast("⏳ ¡Reporte enviado a moderación!");
+                closeModal();
+                e.target.reset();
+                
+            } catch (err) {
+                console.error("Error al guardar reporte en Firestore:", err);
+                showToast("⚠️ Error al crear el reporte. Intenta de nuevo.");
+            }
+
+        };
+
+
+        /* =====================================================
+           RESOLVE ALERT
+        ==================================================== */
+
+        window.resolveCurrentAlert =
+        async function() {
+
+            if (
+                !window.activeAlert
+            ) {
+                return;
+            }
+
+
+            const alertId =
+                window.activeAlert.id;
+
+
+            const index =
+                window.alertsData.findIndex(
+                    a =>
+                        a.id ===
+                        alertId
+                );
+
+
+            if (index === -1)
+                return;
+
+
+            window.alertsData[
+                index
+            ].type =
+                'Reunido';
+
+
+            window.alertsData[
+                index
+            ].medical =
+                'Estable / Sano';
+
+
+            localStorage.setItem(
+                'pawfinds_alerts',
+                JSON.stringify(
+                    window.alertsData
+                )
+            );
+
+
+            const name =
+                window.alertsData[
+                    index
+                ].name;
+
+
+            window.activeAlert =
+                window.alertsData[
+                    index
+                ];
+
+
+            renderAlerts(
+                window.activeFilter
+            );
+
+            renderMapPins();
+
+            renderSuccessStories();
+
+            closeChat();
+
+
+            showToast(
+                `🎉 ¡${name} marcado como Reunido!`
+            );
+
+        };
+
+
+        /* =====================================================
+           CHAT OPEN
+        ==================================================== */
+
+        window.openChat =
+        function(alert) {
+
+            window.activeAlert =
+                alert;
+
+
+            document
+                .getElementById(
+                    'chat-title'
+                )
+                .innerText =
+                    `Chat: ${alert.name}`;
+
+
+            document
+                .getElementById(
+                    'chat-avatar'
+                )
+                .innerText =
+                    alert.name
+                        .charAt(0)
+                        .toUpperCase();
+
+
+            if (
+                !window.chatHistories[
+                    alert.id
+                ]
+            ) {
+
+                window.chatHistories[
+                    alert.id
+                ] = [
+
+                    {
+                        sender:
+                            'other',
+
+                        text:
+                            `Hola, tengo información sobre ${alert.name} en ${alert.location}.`,
+
+                        type:
+                            'text'
+                    }
+
+                ];
+
+            }
+
+
+            renderChatMessages();
+
+
+            document
+                .getElementById(
+                    'chat-modal'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+
+            setTimeout(
+                () =>
+                    document
+                        .getElementById(
+                            'chat-input'
+                        )
+                        ?.focus(),
+                200
+            );
+
+        };
+
+
+        window.closeChat =
+        function() {
+
+            document
+                .getElementById(
+                    'chat-modal'
+                )
+                .classList.add(
+                    'hidden'
+                );
+
+        };
+
+
+        /* =====================================================
+           CHAT RENDER
+        ==================================================== */
+
+        window.renderChatMessages =
+        function() {
+
+            const container =
+                document.getElementById(
+                    'chat-messages'
+                );
+
+
+            if (
+                !container ||
+                !window.activeAlert
+            ) {
+                return;
+            }
+
+
+            container.innerHTML =
+                '';
+
+
+            const history =
+                window.chatHistories[
+                    window.activeAlert.id
+                ] || [];
+
+
+            history.forEach(
+                msg => {
+
+                    const bubble =
+                        document.createElement(
+                            'div'
+                        );
+
+
+                    bubble.className =
+                        `chat-bubble ${
+                            msg.sender === 'user'
+                                ? 'user'
+                                : 'other'
+                        }`;
+
+
+                    if (
+                        msg.type ===
+                        'image'
+                    ) {
+
+                        const img =
+                            document.createElement(
+                                'img'
+                            );
+
+
+                        img.src =
+                            msg.image;
+
+
+                        img.alt =
+                            'Fotografía compartida';
+
+
+                        img.className =
+                            'chat-photo';
+
+
+                        bubble.appendChild(
+                            img
+                        );
+
+
+                        if (msg.text) {
+
+                            const caption =
+                                document.createElement(
+                                    'div'
+                                );
+
+                            caption.textContent =
+                                msg.text;
+
+                            bubble.appendChild(
+                                caption
+                            );
+
+                        }
+
+                    }
+
+                    else if (
+                        msg.type ===
+                        'audio'
+                    ) {
+
+                        const audio =
+                            document.createElement(
+                                'audio'
+                            );
+
+
+                        audio.controls =
+                            true;
+
+                        audio.src =
+                            msg.audio;
+
+                        audio.className =
+                            'chat-audio';
+
+
+                        bubble.appendChild(
+                            audio
+                        );
+
+                    }
+
+                    else {
+
+                        bubble.textContent =
+                            msg.text || '';
+
+                    }
+
+
+                    container.appendChild(
+                        bubble
+                    );
+
+                }
+            );
+
+
+            container.scrollTop =
+                container.scrollHeight;
+
+        };
+
+
+        /* =====================================================
+           SEND TEXT
+        ==================================================== */
+
+        window.sendChatMessage =
+        function() {
+
+            const input =
+                document.getElementById(
+                    'chat-input'
+                );
+
+
+            const text =
+                input.value.trim();
+
+
+            if (
+                !text ||
+                !window.activeAlert
+            ) {
+                return;
+            }
+
+
+            if (
+                !window.chatHistories[
+                    window.activeAlert.id
+                ]
+            ) {
+
+                window.chatHistories[
+                    window.activeAlert.id
+                ] = [];
+
+            }
+
+
+            window.chatHistories[
+                window.activeAlert.id
+            ].push({
+
+                sender:
+                    'user',
+
+                text:
+                    text,
+
+                type:
+                    'text'
+
+            });
+
+
+            localStorage.setItem(
+                'pawfinds_chats',
+                JSON.stringify(
+                    window.chatHistories
+                )
+            );
+
+
+            input.value =
+                '';
+
+
+            renderChatMessages();
+
+        };
+
+
+        window.handleChatKeyPress =
+        function(e) {
+
+            if (
+                e.key ===
+                'Enter'
+            ) {
+
+                e.preventDefault();
+
+                sendChatMessage();
+
+            }
+
+        };
+
+
+        /* =====================================================
+           CHAT PHOTO
+        ==================================================== */
+
+        window.sendChatPhoto =
+        function(event) {
+
+            const file =
+                event.target.files?.[0];
+
+
+            if (
+                !file ||
+                !window.activeAlert
+            ) {
+                return;
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    'image/'
+                )
+            ) {
+
+                showToast(
+                    "⚠️ Selecciona una imagen válida."
+                );
+
+                event.target.value =
+                    '';
+
+                return;
+
+            }
+
+
+            if (
+                file.size >
+                2 * 1024 * 1024
+            ) {
+
+                showToast(
+                    "⚠️ La imagen debe pesar menos de 2 MB."
+                );
+
+                event.target.value =
+                    '';
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+            function(e) {
+
+                if (
+                    !window.chatHistories[
+                        window.activeAlert.id
+                    ]
+                ) {
+
+                    window.chatHistories[
+                        window.activeAlert.id
+                    ] = [];
+
+                }
+
+
+                window.chatHistories[
+                    window.activeAlert.id
+                ].push({
+
+                    sender:
+                        'user',
+
+                    text:
+                        '📷 Fotografía compartida',
+
+                    type:
+                        'image',
+
+                    image:
+                        e.target.result
+
+                });
+
+
+                localStorage.setItem(
+                    'pawfinds_chats',
+                    JSON.stringify(
+                        window.chatHistories
+                    )
+                );
+
+
+                renderChatMessages();
+
+
+                showToast(
+                    "📷 Fotografía enviada."
+                );
+
+            };
+
+
+            reader.onerror =
+            function() {
+
+                showToast(
+                    "❌ No se pudo leer la fotografía."
+                );
+
+            };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+
+            event.target.value =
+                '';
+
+        };
+
+
+        /* =====================================================
+           VOICE RECORDING
+        ==================================================== */
+
+        window.toggleVoiceRecording =
+        async function() {
+
+            const micBtn =
+                document.getElementById(
+                    'mic-btn'
+                );
+
+
+            if (isRecording) {
+
+                if (mediaRecorder) {
+
+                    mediaRecorder.stop();
+
+                }
+
+                return;
+
+            }
+
+
+            if (
+                !navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia
+            ) {
+
+                showToast(
+                    "⚠️ Tu navegador no permite grabar audio."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const stream =
+                    await navigator
+                        .mediaDevices
+                        .getUserMedia({
+                            audio:true
+                        });
+
+
+                mediaRecorder =
+                    new MediaRecorder(
+                        stream
+                    );
+
+
+                audioChunks = [];
+
+
+                mediaRecorder.ondataavailable =
+                event => {
+
+                    if (
+                        event.data.size >
+                        0
+                    ) {
+
+                        audioChunks.push(
+                            event.data
+                        );
+
+                    }
+
+                };
+
+
+                mediaRecorder.onstop =
+                function() {
+
+                    stream
+                        .getTracks()
+                        .forEach(
+                            track =>
+                                track.stop()
+                        );
+
+
+                    const blob =
+                        new Blob(
+                            audioChunks,
+                            {
+                                type:
+                                    mediaRecorder.mimeType ||
+                                    'audio/webm'
+                            }
+                        );
+
+
+                    if (
+                        blob.size >
+                        2 * 1024 * 1024
+                    ) {
+
+                        showToast(
+                            "⚠️ El audio es demasiado grande."
+                        );
+
+                        resetRecordingButton();
+
+                        return;
+
+                    }
+
+
+                    const reader =
+                        new FileReader();
+
+
+                    reader.onload =
+                    function(e) {
+
+                        if (
+                            !window.activeAlert
+                        ) {
+                            return;
+                        }
+
+
+                        if (
+                            !window.chatHistories[
+                                window.activeAlert.id
+                            ]
+                        ) {
+
+                            window.chatHistories[
+                                window.activeAlert.id
+                            ] = [];
+
+                        }
+
+
+                        window.chatHistories[
+                            window.activeAlert.id
+                        ].push({
+
+                            sender:
+                                'user',
+
+                            text:
+                                '🎙️ Mensaje de voz',
+
+                            type:
+                                'audio',
+
+                            audio:
+                                e.target.result
+
+                        });
+
+
+                        localStorage.setItem(
+                            'pawfinds_chats',
+                            JSON.stringify(
+                                window.chatHistories
+                            )
+                        );
+
+
+                        renderChatMessages();
+
+
+                        showToast(
+                            "🎙️ Mensaje de voz enviado."
+                        );
+
+
+                        resetRecordingButton();
+
+                    };
+
+
+                    reader.readAsDataURL(
+                        blob
+                    );
+
+                };
+
+
+                mediaRecorder.start();
+
+                isRecording =
+                    true;
+
+
+                micBtn.classList.add(
+                    'recording'
+                );
+
+
+                micBtn.innerHTML =
+                    '<i class="fa-solid fa-stop"></i>';
+
+
+                micBtn.title =
+                    'Detener grabación';
+
+
+                showToast(
+                    "🔴 Grabando mensaje de voz..."
+                );
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    error
+                );
+
+                showToast(
+                    "⚠️ Debes permitir el acceso al micrófono."
+                );
+
+            }
+
+        };
+
+
+        function resetRecordingButton() {
+
+            isRecording =
+                false;
+
+
+            const micBtn =
+                document.getElementById(
+                    'mic-btn'
+                );
+
+
+            if (!micBtn)
+                return;
+
+
+            micBtn.classList.remove(
+                'recording'
+            );
+
+
+            micBtn.innerHTML =
+                '<i class="fa-solid fa-microphone"></i>';
+
+
+            micBtn.title =
+                'Grabar mensaje de voz';
+
+        }
+
+
+        /* =====================================================
+           POSTER
+        ==================================================== */
+
+        window.generatePoster =
+        function() {
+
+            if (
+                !window.activeAlert
+            ) {
+                return;
+            }
+
+
+            const alert =
+                window.activeAlert;
+
+
+            document
+                .getElementById(
+                    'poster-name'
+                )
+                .innerText =
+                    alert.name;
+
+
+            document
+                .getElementById(
+                    'poster-type'
+                )
+                .innerText =
+                    `ALERTA: ${alert.type.toUpperCase()}`;
+
+
+            document
+                .getElementById(
+                    'poster-species'
+                )
+                .innerText =
+                    alert.species;
+
+
+            document
+                .getElementById(
+                    'poster-location'
+                )
+                .innerText =
+                    alert.location;
+
+
+            document
+                .getElementById(
+                    'poster-contact'
+                )
+                .innerText =
+                    alert.contact;
+
+
+            document
+                .getElementById(
+                    'poster-img'
+                )
+                .src =
+                    alert.image;
+
+
+            document
+                .getElementById(
+                    'chat-modal'
+                )
+                .classList.add(
+                    'hidden'
+                );
+
+
+            document
+                .getElementById(
+                    'poster-modal'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+        };
+
+
+        /* =====================================================
+           TOAST
+        ==================================================== */
+
+        let toastTimer = null;
+
+
+        window.showToast =
+        function(message) {
+
+            const toast =
+                document.getElementById(
+                    'toast'
+                );
+
+
+            document
+                .getElementById(
+                    'toast-message'
+                )
+                .innerText =
+                    message;
+
+
+            toast.classList.add(
+                'show'
+            );
+
+
+            clearTimeout(
+                toastTimer
+            );
+
+
+            toastTimer =
+                setTimeout(
+                    () =>
+                        toast.classList.remove(
+                            'show'
+                        ),
+                    3200
+                );
+
+        };
+
+
+        /* =====================================================
+           GOOGLE LOGIN
+        ==================================================== */
+
+        window.loginWithGoogle =
+        async function() {
+
+            if (
+                !auth ||
+                !GoogleAuthProvider
+            ) {
+
+                showToast(
+                    "⚠️ El sistema de autenticación no está disponible."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const provider =
+                    new GoogleAuthProvider();
+
+
+                const result =
+                    await signInWithPopup(
+                        auth,
+                        provider
+                    );
+
+
+                currentUser =
+                    result.user;
+
+
+                verificarPanelAdminVisual();
+
+
+                document
+                    .getElementById(
+                        'auth-btn-text'
+                    )
+                    .innerText =
+                        currentUser.displayName ||
+                        "Verificado";
+
+
+                closeAuthModal();
+
+
+                showToast(
+                    `🔓 Conectado: ${
+                        currentUser.displayName ||
+                        currentUser.email
+                    }`
+                );
+
+            }
+
+            catch (err) {
+
+                console.warn(
+                    "Google Auth:",
+                    err
+                );
+
+
+                showToast(
+                    "⚠️ Error al autenticar con Google."
+                );
+
+            }
+
+        };
+
+
+        /* =====================================================
+           CERRAR MODALES HACIENDO CLICK FUERA
+        ==================================================== */
+
+        document
+            .querySelectorAll(
+                '.modal'
+            )
+            .forEach(
+                modal => {
+
+                    modal.addEventListener(
+                        'click',
+                        function(e) {
+
+                            if (
+                                e.target ===
+                                modal
+                            ) {
+
+                                modal.classList.add(
+                                    'hidden'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           ESC PARA CERRAR
+        ==================================================== */
+
+        document.addEventListener(
+            'keydown',
+            function(e) {
+
+                if (
+                    e.key !==
+                    'Escape'
+                ) {
+                    return;
+                }
+
+
+                document
+                    .querySelectorAll(
+                        '.modal:not(.hidden)'
+                    )
+                    .forEach(
+                        modal =>
+                            modal.classList.add(
+                                'hidden'
+                            )
+                    );
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
