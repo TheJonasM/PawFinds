@@ -3534,7 +3534,7 @@
                 await runTransaction(db, async (transaction) => {
                     const userSnap = await transaction.get(userRef);
                     
-                    const authDisplayName = user.displayName || "Usuario";
+                    const authDisplayName = user.displayName || "";
                     const authEmail = user.email ? user.email : "";
                     const authPhotoURL = user.photoURL || "";
                     
