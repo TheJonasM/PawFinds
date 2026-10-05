@@ -7,7 +7,7 @@ Completar al transferir análisis o implementación entre agentes. Es una planti
 - Task ID o identificador:
 - Tarea:
 - Objetivo:
-- Estado (usar [estados de PROTOCOL.md](PROTOCOL.md#estados-de-una-tarea)):
+- Estado (usar [estados de PROTOCOL.md](PROTOCOL.md#6-estados-de-una-tarea)):
 - Fecha:
 - Writer (agente escritor autorizado):
 - Reviewer (agente revisor):
