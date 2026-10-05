@@ -115,7 +115,13 @@ Registrar un estado operativo en el handoff o seguimiento de la tarea:
 | `BLOCKED` | Falta acceso, decisión, dependencia o evidencia necesaria. No improvisar para avanzar. |
 | `REJECTED` | Usuario o revisión rechaza la propuesta/cambio; registrar motivo y no integrarlo. |
 
-Transición normal: `PROPOSED` → `REVIEW` → `APPROVED` → `IMPLEMENTING` → `TESTING` → `AUDIT` → `COMMITTED` si aplica → `READY_FOR_INTEGRATION` → aprobación final del usuario → `INTEGRATED` solo después de integración confirmada. Si no corresponde commit/PR, se puede pasar de `AUDIT` a `READY_FOR_INTEGRATION` con el motivo registrado. `BLOCKED` o `REJECTED` pueden alcanzarse desde cualquier etapa. `REQUEST CHANGES` devuelve el trabajo a `IMPLEMENTING` por el mismo writer.
+Transición normal: `PROPOSED` → `REVIEW` → `APPROVED` → `IMPLEMENTING` → `TESTING` → `AUDIT` → `COMMITTED` si aplica → `READY_FOR_INTEGRATION` → aprobación final explícita del usuario → integración confirmada → `INTEGRATED`. Si no corresponde commit/PR, se puede pasar de `AUDIT` a `READY_FOR_INTEGRATION` con el motivo registrado.
+
+`INTEGRATED` es un estado terminal: no admite transiciones de la misma tarea. Si después de la integración se requiere una corrección, mejora o investigación, se inicia una `NEXT TASK` con identificador, alcance, revisión, aprobación, implementación, pruebas, auditoría e integración propios, según el paso 19. No se define un mecanismo técnico de relación entre tareas.
+
+`BLOCKED` y `REJECTED` pueden alcanzarse desde cualquier etapa activa anterior a `INTEGRATED`. No tienen transiciones de salida definidas; no se permite reabrirlos ni recuperarlos mediante una transición implícita.
+
+`REQUEST CHANGES` es un resultado de revisión, no un estado. Si la revisión ocurre antes de que el alcance haya sido aprobado, el resultado devuelve la propuesta de `REVIEW` a `PROPOSED`. Si la tarea ya recibió `APPROVED` y una revisión posterior del trabajo, antes de `INTEGRATED`, solicita cambios, vuelve a `IMPLEMENTING` y continúa el mismo writer. El resultado y sus findings se conservan en el registro/handoff de la tarea.
 
 `PROPOSED` nunca significa `APPROVED`; `IMPLEMENTING` nunca significa aprobado; `COMMITTED` nunca significa `INTEGRATED`.
 
