@@ -1,0 +1,99 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function emailMatchesAuth(data) {
+      return !("email" in request.auth.token)
+        || data.email == request.auth.token.email;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn()
+        && request.auth.uid == userId;
+
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll([
+          "uid",
+          "displayName",
+          "email",
+          "photoURL",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "email",
+          "photoURL",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.uid is string
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.displayName is string
+        && request.resource.data.email is string
+        && emailMatchesAuth(request.resource.data)
+        && request.resource.data.photoURL is string
+        && request.resource.data.status == "ACTIVE"
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "email",
+          "photoURL",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.displayName is string
+        && request.resource.data.email is string
+        && emailMatchesAuth(request.resource.data)
+        && request.resource.data.photoURL is string
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "displayName",
+          "email",
+          "photoURL",
+          "updatedAt"
+        ]);
+
+      allow delete: if false;
+    }
+
+    // Alerts policy supplied by the Product Owner for local regression testing.
+    // The missing administrative-role check is a future authorization debt,
+    // explicitly outside the scope of this harness.
+    match /alerts/{alertId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "pending";
+
+      allow update: if request.auth != null
+        && resource.data.status == "pending"
+        && request.resource.data.status in ["approved", "rejected"]
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"]);
+
+      allow delete: if false;
+    }
+  }
+}
