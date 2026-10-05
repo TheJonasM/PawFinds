@@ -12,7 +12,7 @@ const {
 const {
   createTask,
   scopeApprovalStatus,
-  transitionTask,
+  transitionTask: transitionTaskCore,
   validateTask
 } = require("../orchestrator/task-engine");
 const { TASK_STATES } = require("../orchestrator/state-machine");
@@ -70,6 +70,10 @@ function isRegisteredAgent(id) {
   return [WRITER.id, REVIEWER.id, "chatgpt"].includes(id);
 }
 
+function transitionTask(task, nextState, context = {}) {
+  return transitionTaskCore(task, nextState, context, { isRegisteredAgent });
+}
+
 function makeTask(overrides = {}) {
   return createTask({ ...makeInput(), ...overrides }, { isRegisteredAgent });
 }
@@ -79,7 +83,9 @@ function review(outcome, phase = "PROPOSAL", findings = []) {
     reviewerId: REVIEWER.id,
     phase,
     outcome,
-    findings,
+    findings: findings.map((finding) => typeof finding === "string"
+      ? { message: finding, blocking: outcome !== "PASS" }
+      : finding),
     evidenceRef: `review:${phase.toLowerCase()}:${outcome}`
   };
 }
@@ -147,6 +153,13 @@ test("2. rejects invalid task fields and unsupported state injection", () => {
   assert.throws(() => makeTask({ state: "IMPLEMENTING" }), { code: "INVALID_TASK" });
 });
 
+test("2a. the task engine requires a registered-agent resolver for every operation", () => {
+  assert.throws(() => createTask(makeInput()), TypeError);
+  const task = makeTask();
+  assert.throws(() => validateTask(task), TypeError);
+  assert.throws(() => transitionTaskCore(task, "REVIEW"), TypeError);
+});
+
 test("3. allows PROPOSED to REVIEW", () => {
   assert.equal(transitionTask(makeTask(), "REVIEW").state, "REVIEW");
 });
@@ -175,6 +188,55 @@ test("5. REQUEST_CHANGES before approval returns REVIEW to PROPOSED and records 
   assert.equal(revised.scopeApproval, null);
   assert.equal(revised.workRevision, 1);
   assert.ok(!TASK_STATES.includes("REQUEST_CHANGES"));
+});
+
+test("5a. proposalUpdates cannot assign an unregistered writer or reviewer", () => {
+  const task = transitionTask(makeTask(), "REVIEW");
+  assert.throws(() => transitionTask(task, "PROPOSED", {
+    review: review("REQUEST_CHANGES", "PROPOSAL", ["Reassign to an unknown writer"]),
+    proposalUpdates: { writerId: "unregistered-writer" }
+  }), { code: "UNKNOWN_AGENT" });
+  assert.throws(() => transitionTask(task, "PROPOSED", {
+    review: review("REQUEST_CHANGES", "PROPOSAL", ["Reassign to an unknown reviewer"]),
+    proposalUpdates: { reviewerId: "unregistered-reviewer" }
+  }), { code: "UNKNOWN_AGENT" });
+});
+
+test("5b. PASS allows informational findings but rejects blocking findings", () => {
+  const task = transitionTask(makeTask(), "REVIEW");
+  const approved = transitionTask(task, "APPROVED", {
+    review: review("PASS", "PROPOSAL", [{ message: "Minor note", blocking: false }]),
+    scopeApproval: { approverRef: OWNER, evidenceRef: "human-approval:scope" }
+  });
+  assert.equal(approved.state, "APPROVED");
+
+  assert.throws(() => transitionTask(task, "APPROVED", {
+    review: review("PASS", "PROPOSAL", [{ message: "Must be fixed", blocking: true }]),
+    scopeApproval: { approverRef: OWNER, evidenceRef: "human-approval:scope" }
+  }), { code: "REVIEW_EVIDENCE_REQUIRED" });
+});
+
+test("5c. REQUEST_CHANGES requires at least one blocking finding", () => {
+  const task = transitionTask(makeTask(), "REVIEW");
+  assert.throws(() => transitionTask(task, "PROPOSED", {
+    review: review("REQUEST_CHANGES", "PROPOSAL", [{ message: "Informational only", blocking: false }])
+  }), { code: "REVIEW_EVIDENCE_REQUIRED" });
+});
+
+test("5d. findings require exactly message and boolean blocking fields", () => {
+  const task = transitionTask(makeTask(), "REVIEW");
+  const invalidFindings = [
+    ["plain string"],
+    [{ message: "Missing blocking flag" }],
+    [{ message: "Invalid flag", blocking: "yes" }],
+    [{ message: "Unapproved severity field", blocking: false, severity: "HIGH" }]
+  ];
+  for (const findings of invalidFindings) {
+    assert.throws(() => transitionTask(task, "APPROVED", {
+      review: { ...review("PASS"), findings },
+      scopeApproval: { approverRef: OWNER, evidenceRef: "human-approval:scope" }
+    }), { code: "REVIEW_EVIDENCE_REQUIRED" });
+  }
 });
 
 test("6. APPROVED to IMPLEMENTING requires the scope approval record", () => {
@@ -269,6 +331,9 @@ test("13. BLOCKED requires a reason and has no recovery", () => {
 
 test("14. REJECTED records a reason and has no recovery", () => {
   const task = transitionTask(makeTask(), "REVIEW");
+  assert.throws(() => transitionTask(task, "REJECTED", {
+    terminalEvidence: { reason: "No formal review was recorded" }
+  }), { code: "INVALID_TRANSITION" });
   const rejected = transitionTask(task, "REJECTED", {
     review: review("REJECT", "PROPOSAL", ["The proposal conflicts with the protocol"])
   });

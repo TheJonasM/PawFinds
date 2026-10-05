@@ -103,8 +103,8 @@ function validTimestamp(value) {
 }
 
 function checkResolver(resolver) {
-  if (resolver !== undefined && typeof resolver !== "function") {
-    throw new TypeError("isRegisteredAgent must be a function when provided.");
+  if (typeof resolver !== "function") {
+    throw new TypeError("isRegisteredAgent must be provided as a function.");
   }
 }
 
@@ -115,8 +115,7 @@ function checkAgentAssignments(task, isRegisteredAgent) {
   if (task.writerId === task.reviewerId) {
     throw fail("INVALID_TASK", "writerId and reviewerId must identify different agents.");
   }
-  if (isRegisteredAgent
-      && (!isRegisteredAgent(task.writerId) || !isRegisteredAgent(task.reviewerId))) {
+  if (isRegisteredAgent(task.writerId) !== true || isRegisteredAgent(task.reviewerId) !== true) {
     throw fail("UNKNOWN_AGENT", "Writer and reviewer must be registered agents.");
   }
 }
@@ -151,8 +150,7 @@ function checkReviewRecord(record, task) {
       || record.reviewerId !== task.reviewerId
       || !REVIEW_OUTCOMES.includes(record.outcome)
       || !REVIEW_PHASES.includes(record.phase)
-      || !Array.isArray(record.findings)
-      || record.findings.some((finding) => !nonEmptyString(finding))
+      || !validFindings(record.findings)
       || !nonEmptyString(record.evidenceRef)
       || !Number.isInteger(record.revision)
       || record.revision < 0
@@ -163,6 +161,23 @@ function checkReviewRecord(record, task) {
   if (record.outcome !== "PASS" && record.findings.length === 0) {
     throw fail("INVALID_TASK", "REQUEST_CHANGES and REJECT reviews require findings.");
   }
+  if (record.outcome === "PASS" && record.findings.some((finding) => finding.blocking)) {
+    throw fail("INVALID_TASK", "PASS reviews cannot contain blocking findings.");
+  }
+  if (record.outcome === "REQUEST_CHANGES" && !record.findings.some((finding) => finding.blocking)) {
+    throw fail("INVALID_TASK", "REQUEST_CHANGES reviews require a blocking finding.");
+  }
+}
+
+function validFindings(findings) {
+  return Array.isArray(findings) && findings.every((finding) =>
+    isPlainObject(finding)
+      && Object.keys(finding).length === 2
+      && Object.hasOwn(finding, "message")
+      && Object.hasOwn(finding, "blocking")
+      && nonEmptyString(finding.message)
+      && typeof finding.blocking === "boolean"
+  );
 }
 
 function checkEvidenceRecord(record, task, label) {
@@ -425,12 +440,17 @@ function validateReview(review, task, expectedPhase) {
         ? expectedPhase.includes(review.phase)
         : review.phase === expectedPhase))
       || !nonEmptyString(review.evidenceRef)
-      || !Array.isArray(review.findings)
-      || review.findings.some((finding) => !nonEmptyString(finding))) {
+      || !validFindings(review.findings)) {
     throw fail("REVIEW_EVIDENCE_REQUIRED", "Review outcome must identify the assigned reviewer, phase and evidence.");
   }
   if (review.outcome !== "PASS" && review.findings.length === 0) {
     throw fail("REVIEW_EVIDENCE_REQUIRED", "REQUEST_CHANGES and REJECT require at least one finding.");
+  }
+  if (review.outcome === "PASS" && review.findings.some((finding) => finding.blocking)) {
+    throw fail("REVIEW_EVIDENCE_REQUIRED", "PASS reviews cannot contain blocking findings.");
+  }
+  if (review.outcome === "REQUEST_CHANGES" && !review.findings.some((finding) => finding.blocking)) {
+    throw fail("REVIEW_EVIDENCE_REQUIRED", "REQUEST_CHANGES requires at least one blocking finding.");
   }
   return {
     reviewerId: review.reviewerId,
@@ -502,15 +522,18 @@ function validateTerminalEvidence(input, state) {
   };
 }
 
-function applyProposalUpdates(task, updates) {
+function applyProposalUpdates(task, updates, options) {
   if (updates === undefined) return;
   if (!isPlainObject(updates)) throw fail("INVALID_TASK", "proposalUpdates must be a plain object.");
   assertKnownKeys(updates, PROPOSAL_UPDATE_FIELDS, "proposalUpdates");
   Object.assign(task, clone(updates));
+  checkAgentAssignments(task, options.isRegisteredAgent);
 }
 
-function transitionTask(task, nextState, context = {}) {
-  validateTask(task);
+function transitionTask(task, nextState, context = {}, options = {}) {
+  if (!isPlainObject(options)) throw new TypeError("Transition options must be a plain object.");
+  checkResolver(options.isRegisteredAgent);
+  validateTask(task, options);
   if (!isPlainObject(context)) throw new TypeError("Transition context must be a plain object.");
 
   const kind = classifyTransition(task, nextState, {
@@ -536,7 +559,7 @@ function transitionTask(task, nextState, context = {}) {
     ["finalReview", nextState === "READY_FOR_INTEGRATION"],
     ["integrationApproval", nextState === "INTEGRATED"],
     ["integrationRef", nextState === "INTEGRATED"],
-    ["terminalEvidence", nextState === "BLOCKED" || nextState === "REJECTED"]
+    ["terminalEvidence", nextState === "BLOCKED"]
   ];
   for (const [field, allowed] of contextUse) {
     if (context[field] !== undefined && !allowed) {
@@ -594,7 +617,7 @@ function transitionTask(task, nextState, context = {}) {
   }
 
   if (kind === "PROPOSAL_CHANGES") {
-    applyProposalUpdates(next, context.proposalUpdates);
+    applyProposalUpdates(next, context.proposalUpdates, options);
     next.workRevision += 1;
   }
 
@@ -666,16 +689,20 @@ function transitionTask(task, nextState, context = {}) {
   }
 
   if (nextState === "REJECTED") {
-    const rejectionEvidence = context.terminalEvidence
-      || (reviewRecord && reviewRecord.outcome === "REJECT"
-        ? { actorRef: reviewRecord.reviewerId, reason: reviewRecord.findings.join("; "), evidenceRef: reviewRecord.evidenceRef }
-        : null);
+    if (!reviewRecord || reviewRecord.outcome !== "REJECT") {
+      throw fail("REVIEW_EVIDENCE_REQUIRED", "REJECTED requires a formal REJECT review.");
+    }
+    const rejectionEvidence = {
+      actorRef: reviewRecord.reviewerId,
+      reason: reviewRecord.findings.map((finding) => finding.message).join("; "),
+      evidenceRef: reviewRecord.evidenceRef
+    };
     next.terminalHistory.push(validateTerminalEvidence(rejectionEvidence, "REJECTED"));
   }
 
   next.state = nextState;
   next.timestamps.updatedAt = nowIso();
-  validateTask(next);
+  validateTask(next, options);
   return deepFreeze(next);
 }
 

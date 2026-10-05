@@ -74,6 +74,9 @@ function classifyTransition(task, nextState, context = {}) {
     if (!ACTIVE_STATES.has(from)) {
       throw transitionError(`${from} is not an active state.`);
     }
+    if (to === "REJECTED" && reviewOutcome !== "REJECT") {
+      throw transitionError("REJECTED requires a formal REJECT review outcome.");
+    }
     return to;
   }
 
