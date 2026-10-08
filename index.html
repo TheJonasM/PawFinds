@@ -2273,6 +2273,44 @@ body.dark.app-active .pf-admin-item{background:#222234;border-color:rgba(255,255
 @media(max-width:600px){.pf-module-grid{grid-template-columns:1fr}.pf-module-page{padding:24px 14px}}
 </style>
 
+
+<style id="pawfinds-app-shell-v4">
+/* V4: true internal shell; legacy operational chrome is visually retired. */
+body.app-active #app-header,
+body.app-active #admin-panel-section{display:none!important}
+body.app-active #view-map{display:block!important;position:relative;height:calc(100vh - 68px)!important;min-height:0!important;margin:0!important;padding:0!important;background:#f8fafc!important}
+body.dark.app-active #view-map{background:#181826!important}
+body.app-active #view-map>.sidebar,
+body.app-active #view-map>.alerts-panel,
+body.app-active #view-map>.map-sidebar,
+body.app-active #view-map>.legacy-sidebar{display:none!important}
+body.app-active #view-map #real-leaflet-map{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;border-radius:0!important}
+body.app-active #view-map .map-wrapper{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important}
+#pf-app-sidebar{display:none}
+body.app-active #pf-app-sidebar{display:flex;position:fixed;left:14px;top:82px;bottom:14px;width:220px;z-index:450;flex-direction:column;padding:12px;border:1px solid #e2e8f0;border-radius:22px;background:rgba(255,255,255,.82);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 20px 55px -25px rgba(15,23,42,.28)}
+body.dark.app-active #pf-app-sidebar{background:rgba(34,34,52,.9);border-color:rgba(255,255,255,.09)}
+.pf-side-label{padding:10px 11px 7px;color:#94a3b8;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
+.pf-side-btn{width:100%;border:0;background:transparent;color:#64748b;display:flex;align-items:center;gap:11px;padding:11px;border-radius:12px;text-align:left;font:inherit;font-size:11px;font-weight:900;cursor:pointer}
+.pf-side-btn i{width:18px;text-align:center}
+.pf-side-btn:hover,.pf-side-btn.active{background:#f1f5f9;color:#8b5cf6}
+body.dark.app-active .pf-side-btn:hover,body.dark.app-active .pf-side-btn.active{background:#2b2d42}
+.pf-side-report{margin-top:auto;background:linear-gradient(135deg,#ff6b6b,#8b5cf6)!important;color:#fff!important;justify-content:center!important}
+body.app-active #view-map #real-leaflet-map{left:0}
+body.app-active #pf-alerts-workspace,body.app-active #pf-community-workspace{display:none}
+#pf-alerts-workspace,#pf-community-workspace{display:none}
+body.app-active.pf-alerts-active #view-map,body.app-active.pf-community-active #view-map{display:none!important}
+body.app-active.pf-alerts-active #pf-alerts-workspace,body.app-active.pf-community-active #pf-community-workspace{display:block!important}
+body.app-active.pf-alerts-active #pf-alerts-workspace,
+body.app-active.pf-community-active #pf-community-workspace{height:calc(100vh - 68px);overflow:auto;padding:34px clamp(18px,4vw,55px);background:#f8fafc}
+body.dark.app-active.pf-alerts-active #pf-alerts-workspace,
+body.dark.app-active.pf-community-active #pf-community-workspace{background:#181826}
+.pf-content-offset{margin-left:260px}
+.pf-real-card{border:1px solid #e2e8f0;border-radius:18px;background:#fff;padding:16px;margin-bottom:10px;box-shadow:0 10px 35px -20px rgba(15,23,42,.2)}
+body.dark.app-active .pf-real-card{background:#222234;border-color:rgba(255,255,255,.09)}
+.pf-real-title{font-size:16px;font-weight:900;margin:0 0 4px}.pf-real-meta{font-size:11px;color:#64748b}
+@media(max-width:800px){body.app-active #pf-app-sidebar{left:8px;right:8px;top:auto;bottom:8px;width:auto;height:58px;flex-direction:row;padding:6px;border-radius:18px}.pf-side-label,.pf-side-report{display:none}.pf-side-btn{justify-content:center;padding:8px}.pf-side-btn span{display:none}.pf-side-btn i{width:auto}.pf-content-offset{margin-left:0;padding-bottom:80px!important}body.app-active #view-map #real-leaflet-map{padding-bottom:0}}
+</style>
+
 </head>
 
 <body class="dark landing-active">
@@ -7121,7 +7159,7 @@ body.dark.app-active .pf-admin-item{background:#222234;border-color:rgba(255,255
 
             document.body.classList.toggle('landing-active', isLanding);
             document.body.classList.toggle('app-active', !isLanding);
-            document.body.classList.remove('pf-admin-active','pf-dashboard-active');
+            document.body.classList.remove('pf-admin-active','pf-dashboard-active','pf-alerts-active','pf-community-active');
 
             if (landing) landing.style.display = isLanding ? '' : 'none';
             if (topbar) topbar.style.display = isLanding ? 'none' : 'grid';
@@ -7140,21 +7178,29 @@ body.dark.app-active .pf-admin-item{background:#222234;border-color:rgba(255,255
 
         window.openAppView = function(section) {
             window.showView('app');
-            if (section === 'radar') {
-                setTimeout(() => {
-                    const map=document.getElementById('real-leaflet-map');
-                    if(map) map.scrollIntoView({behavior:'smooth',block:'nearest'});
-                    if (typeof leafletMap !== 'undefined' && leafletMap?.invalidateSize) leafletMap.invalidateSize();
-                },120);
+            document.body.classList.remove('pf-alerts-active','pf-community-active','pf-dashboard-active','pf-admin-active');
+            if(section==='alerts'){
+                document.body.classList.add('pf-alerts-active');
+                renderRealAlertsView();
                 return;
             }
-            if (section === 'alerts') {
-                setTimeout(() => document.getElementById('alerts-list')?.focus?.({preventScroll:true}),120);
+            if(section==='community'){
+                document.body.classList.add('pf-community-active');
                 return;
             }
-            if (section === 'community') {
-                setTimeout(() => document.getElementById('sidebar-social-dock')?.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
-            }
+            setTimeout(() => {
+                const map=document.getElementById('real-leaflet-map');
+                if(map && typeof leafletMap !== 'undefined' && leafletMap?.invalidateSize) leafletMap.invalidateSize();
+            },120);
+        };
+
+        window.renderRealAlertsView = function(){
+            const host=document.getElementById('pf-real-alerts');
+            if(!host)return;
+            const a=getRealAlerts();
+            const esc=window.escapeHTML||((v)=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])));
+            if(!a.length){host.innerHTML='<div class="pf-real-card"><div class="pf-real-title">Sin alertas disponibles</div><div class="pf-real-meta">No hay registros cargados en este momento.</div></div>';return;}
+            host.innerHTML=a.map(x=>'<article class="pf-real-card"><div class="pf-real-title">'+esc(x.name||x.petName||'Mascota reportada')+'</div><div class="pf-real-meta">'+esc(x.type||'Alerta')+' · '+esc(x.location||'Ubicación no indicada')+' · '+esc(x.status||'Estado no indicado')+'</div></article>').join('');
         };
 
         window.openDashboardView = function() {
@@ -7241,7 +7287,29 @@ body.dark.app-active .pf-admin-item{background:#222234;border-color:rgba(255,255
          New internal product shell. Existing operational logic
          remains behind these views.
     ========================================================= -->
-    <div id="pawfinds-app-topbar" aria-label="PawFinds app navigation">
+    
+    <nav id="pf-app-sidebar" aria-label="Navegación principal PawFinds">
+      <div class="pf-side-label">Espacio de trabajo</div>
+      <button class="pf-side-btn active" onclick="openAppView('radar')"><i class="fa-solid fa-location-crosshairs"></i><span>Radar</span></button>
+      <button class="pf-side-btn" onclick="openAppView('alerts')"><i class="fa-solid fa-bell"></i><span>Alertas</span></button>
+      <button class="pf-side-btn" onclick="openAppView('community')"><i class="fa-solid fa-users"></i><span>Comunidad</span></button>
+      <button class="pf-side-btn" onclick="openDashboardView()"><i class="fa-solid fa-chart-simple"></i><span>Dashboard</span></button>
+      <button class="pf-side-btn" onclick="openAdminCenter()"><i class="fa-solid fa-shield-halved"></i><span>Admin Center</span></button>
+      <button class="pf-side-btn pf-side-report" onclick="openReportModal()"><i class="fa-solid fa-plus"></i><span>Reportar mascota</span></button>
+    </nav>
+    <section id="pf-alerts-workspace">
+      <div class="pf-content-offset">
+        <div class="pf-module-head"><div class="pf-kicker">Alertas</div><h2>Alertas de la comunidad.</h2><p>Información proveniente del sistema real de PawFinds. Las tarjetas no inventan datos.</p></div>
+        <div id="pf-real-alerts"></div>
+      </div>
+    </section>
+    <section id="pf-community-workspace">
+      <div class="pf-content-offset">
+        <div class="pf-module-head"><div class="pf-kicker">Comunidad</div><h2>Comunidad PawFinds.</h2><p>Conecta con las herramientas comunitarias que ya existen en la aplicación.</p></div>
+        <div class="pf-real-card"><div class="pf-real-title">Espacio comunitario</div><div class="pf-real-meta">El contenido social existente permanece disponible dentro del producto real. Esta nueva superficie evita mezclarlo con el antiguo App Shell.</div></div>
+      </div>
+    </section>
+<div id="pawfinds-app-topbar" aria-label="PawFinds app navigation">
         <button class="pf-app-brand" type="button" onclick="showView('landing')">
             <span class="pf-app-mark"><i class="fa-solid fa-paw"></i></span>
             <strong>PawFinds</strong>
