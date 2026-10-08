@@ -2031,6 +2031,187 @@ body:not(.landing-active) #view-landing{display:none!important}
 @media(prefers-reduced-motion:reduce){.radar-sweep,.radar-card,.micro-badge-dot{animation:none!important}}
 
     </style>
+
+<style id="pawfinds-app-shell-v2">
+/* =========================================================
+   PAWFINDs APP SHELL V2
+   Landing pública y aplicación operacional son superficies
+   completamente separadas.
+========================================================= */
+body.app-active {
+  overflow: hidden !important;
+  background: #f8fafc !important;
+  color: #0f172a;
+}
+body.app-active #view-landing {
+  display: none !important;
+}
+body.app-active #app-header {
+  display: flex !important;
+  position: relative !important;
+  z-index: 100 !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 20px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: rgba(255,255,255,.82) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  box-shadow: 0 8px 30px rgba(15,23,42,.07) !important;
+}
+body.dark.app-active #app-header {
+  background: rgba(24,24,38,.82) !important;
+  border-color: rgba(255,255,255,.09) !important;
+}
+body.app-active #app-header .brand-logo {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 12px !important;
+  font-size: 17px !important;
+}
+body.app-active #app-header .brand-container {
+  min-width: 190px !important;
+  gap: 10px !important;
+}
+body.app-active #app-header .brand-title {
+  font-size: 18px !important;
+}
+body.app-active #app-header .brand-status {
+  font-size: 9px !important;
+  margin-top: 3px !important;
+}
+body.app-active #app-header .header-nav {
+  justify-content: center !important;
+  gap: 4px !important;
+}
+body.app-active #app-header .nav-btn {
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  font-size: 11px !important;
+}
+body.app-active #app-header .nav-btn:hover {
+  background: #f1f5f9 !important;
+  color: #8b5cf6 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+body.dark.app-active #app-header .nav-btn:hover {
+  background: #2b2d42 !important;
+}
+body.app-active main#view-map {
+  display: flex !important;
+  height: calc(100vh - 64px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: #f8fafc !important;
+}
+body.dark.app-active main#view-map {
+  background: #181826 !important;
+}
+body.app-active main#view-map .sidebar {
+  width: 250px !important;
+  min-width: 250px !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  background: rgba(255,255,255,.82) !important;
+}
+body.dark.app-active main#view-map .sidebar {
+  background: #222234 !important;
+  border-color: rgba(255,255,255,.09) !important;
+}
+body.app-active main#view-map .sidebar-header {
+  padding: 20px 18px 15px !important;
+  background: transparent !important;
+}
+body.app-active main#view-map .sidebar-heading {
+  font-size: 16px !important;
+}
+body.app-active main#view-map .sidebar-description {
+  font-size: 10.5px !important;
+}
+body.app-active main#view-map .filter-row {
+  flex-direction: column !important;
+  gap: 5px !important;
+}
+body.app-active main#view-map .filter-tab {
+  width: 100% !important;
+  text-align: left !important;
+  border: 0 !important;
+  background: transparent !important;
+  min-height: 38px !important;
+  padding: 9px 11px !important;
+}
+body.app-active main#view-map .filter-tab.active {
+  background: linear-gradient(135deg,#ff6b6b,#8b5cf6) !important;
+  color: #fff !important;
+}
+body.app-active main#view-map .map-wrapper {
+  flex: 1 !important;
+  min-width: 0 !important;
+  position: relative !important;
+  border: 0 !important;
+}
+body.app-active main#view-map #real-leaflet-map {
+  width: 100% !important;
+  height: 100% !important;
+}
+body.app-active main#view-map .alerts-panel {
+  width: 340px !important;
+  min-width: 340px !important;
+  border-left: 1px solid #e2e8f0 !important;
+  background: rgba(255,255,255,.86) !important;
+  box-shadow: none !important;
+}
+body.dark.app-active main#view-map .alerts-panel {
+  background: #222234 !important;
+  border-color: rgba(255,255,255,.09) !important;
+}
+body.app-active main#view-map .rescue-card {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 25px rgba(15,23,42,.07) !important;
+}
+body.app-active main#view-map .rescue-card:hover {
+  transform: translateY(-2px) !important;
+}
+body.app-active #admin-panel-section {
+  display: none;
+}
+body.app-active .modal.hidden,
+body.app-active #toast {
+  z-index: 1000 !important;
+}
+@media (max-width: 980px) {
+  body.app-active main#view-map .alerts-panel {
+    width: 300px !important;
+    min-width: 300px !important;
+  }
+}
+@media (max-width: 760px) {
+  body.app-active #app-header {
+    padding: 0 12px !important;
+  }
+  body.app-active #app-header .header-nav {
+    display: none !important;
+  }
+  body.app-active #app-header .brand-container {
+    min-width: 0 !important;
+  }
+  body.app-active main#view-map .sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+  }
+  body.app-active main#view-map .alerts-panel {
+    display: none !important;
+  }
+}
+</style>
+
 </head>
 
 <body class="dark landing-active">
@@ -6868,25 +7049,23 @@ body:not(.landing-active) #view-landing{display:none!important}
         );
 
     
-        /* === PAWFINDs VIEW ROUTER — PHASE 2A.2 ===
-           Landing and operational application are mutually exclusive states.
-           Legacy navigation remains inside the operational app; it is never
-           rendered together with the public Landing.
+        /* === PAWFINDs VIEW ROUTER — PHASE 2A.3 ===
+           Public Landing y Operational App son dos estados mutuamente
+           excluyentes. El App Shell reutiliza la lógica real existente,
+           pero nunca se renderiza junto a la Landing.
         ================================================================ */
         window.showView = function(view) {
             const landing = document.getElementById('view-landing');
             const operational = document.getElementById('view-map');
             const appHeader = document.getElementById('app-header');
-            const adminPanel = document.getElementById('admin-panel-section');
             const isLanding = view === 'landing';
 
             document.body.classList.toggle('landing-active', isLanding);
             document.body.classList.toggle('app-active', !isLanding);
 
             if (landing) landing.style.display = isLanding ? '' : 'none';
-            if (operational) operational.style.display = isLanding ? 'none' : '';
-            if (appHeader) appHeader.style.display = isLanding ? 'none' : '';
-            if (adminPanel && isLanding) adminPanel.style.display = 'none';
+            if (operational) operational.style.display = isLanding ? 'none' : 'flex';
+            if (appHeader) appHeader.style.display = isLanding ? 'none' : 'flex';
 
             if (!isLanding) {
                 setTimeout(() => {
@@ -6895,8 +7074,8 @@ body:not(.landing-active) #view-landing{display:none!important}
                         leafletMap.invalidateSize();
                     }
                     if (typeof renderMapPins === 'function') renderMapPins();
-                }, 50);
-                window.scrollTo({top: 0, behavior: 'smooth'});
+                }, 80);
+                window.scrollTo({top: 0, behavior: 'instant'});
             }
         };
 
@@ -6906,22 +7085,15 @@ body:not(.landing-active) #view-landing{display:none!important}
             const targets = {
                 radar: 'real-leaflet-map',
                 alerts: 'alerts-list',
-                community: 'sidebar-social-dock',
-                dashboard: 'admin-panel-section'
+                community: 'sidebar-social-dock'
             };
 
-            const targetId = targets[section];
-            const target = targetId ? document.getElementById(targetId) : null;
+            const target = targets[section] ? document.getElementById(targets[section]) : null;
 
             if (target) {
                 setTimeout(() => {
-                    target.scrollIntoView({behavior: 'smooth', block: 'start'});
-                }, 100);
-            }
-
-            if (section === 'alerts') {
-                const alertsList = document.getElementById('alerts-list');
-                if (alertsList) alertsList.focus?.({preventScroll: true});
+                    target.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                }, 120);
             }
         };
 
@@ -6962,7 +7134,7 @@ body:not(.landing-active) #view-landing{display:none!important}
                 <button class="site-nav-link" type="button" onclick="openAppView('radar')">Radar</button>
                 <button class="site-nav-link" type="button" onclick="openAppView('alerts')">Alertas</button>
                 <button class="site-nav-link" type="button" onclick="openAppView('community')">Comunidad</button>
-                <button class="site-nav-link" type="button" onclick="openAppView('dashboard')">Dashboard</button>
+                <button class="site-nav-link" type="button" onclick="openAppView('radar')">Dashboard</button>
             </nav>
             <div class="site-nav-actions">
                 <button class="site-theme-btn" type="button" onclick="toggleTheme()" aria-label="Cambiar tema"><i class="fa-solid fa-sun"></i></button>
