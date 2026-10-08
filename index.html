@@ -1986,16 +1986,60 @@
                 transition-duration: .001ms !important;
             }
         }
+    
+/* === PAWFINDs LANDING — direct visual implementation === */
+body.landing-active{overflow-x:hidden}
+body.landing-active #app-header,body.landing-active #admin-panel-section,body.landing-active #view-map{display:none!important}
+body:not(.landing-active) #view-landing{display:none!important}
+#view-landing{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(circle at 15% 10%,rgba(255,107,107,.20),transparent 34%),radial-gradient(circle at 90% 20%,rgba(139,92,246,.20),transparent 34%),radial-gradient(circle at 50% 100%,rgba(16,185,129,.13),transparent 38%),var(--bg-app);color:var(--text-main)}
+#view-landing::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.07) 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,rgba(255,255,255,.05) 0 2px,transparent 3px);background-size:170px 170px,230px 230px;opacity:.35}
+.site-navbar{width:min(1180px,calc(100% - 40px));min-height:76px;margin:0 auto;padding:18px 0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;position:relative;z-index:20}
+.site-brand{display:inline-flex;align-items:center;gap:11px;color:inherit;text-decoration:none;font-weight:900;border:0;background:transparent;cursor:pointer;font:inherit}
+.site-brand-mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#ff6b6b,#8b5cf6);box-shadow:0 12px 36px -10px rgba(255,107,107,.55)}
+.site-brand-name{font-size:17px;letter-spacing:-.4px}
+.site-nav-links{display:flex;justify-content:center;align-items:center;gap:28px}
+.site-nav-link{border:0;background:transparent;color:var(--text-muted);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:color .2s ease,transform .2s ease}
+.site-nav-link:hover{color:var(--text-main);transform:translateY(-1px)}
+.site-nav-actions{display:flex;align-items:center;gap:9px}
+.site-theme-btn,.site-auth-btn{min-height:40px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:var(--text-main);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);cursor:pointer;font:inherit;font-weight:800}
+.site-theme-btn{width:40px}.site-auth-btn{padding:0 15px;background:linear-gradient(135deg,#ff6b6b,#8b5cf6);border-color:transparent;color:#fff;box-shadow:0 12px 36px -10px rgba(255,107,107,.45)}
+.landing-container{width:min(1180px,calc(100% - 40px));margin:0 auto;position:relative;z-index:2}
+.hero{min-height:560px;display:grid;grid-template-columns:1.1fr 1fr;gap:54px;align-items:center;padding:48px 0 58px}
+.hero-copy{max-width:650px}.micro-badge{display:inline-flex;align-items:center;gap:9px;padding:8px 13px;border:1px solid rgba(255,255,255,.10);border-radius:999px;background:rgba(255,255,255,.055);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);color:var(--text-muted);font-size:11px;font-weight:800;margin-bottom:22px}
+.micro-badge-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 6px rgba(16,185,129,.12);animation:landing-ping 2s infinite}
+.hero-headline{max-width:760px;font-size:clamp(46px,6vw,78px);line-height:.98;letter-spacing:-4px;font-weight:900;margin-bottom:22px}
+.hero-headline .gradient-word{background:linear-gradient(135deg,#ff6b6b,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-subhead{max-width:610px;color:var(--text-muted);font-size:16px;line-height:1.75;margin-bottom:30px}.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero-btn{border:0;border-radius:15px;min-height:48px;padding:0 20px;font:inherit;font-weight:900;cursor:pointer;transition:transform .25s ease,box-shadow .25s ease}
+.hero-btn:hover{transform:translateY(-3px)}.hero-btn.primary{color:#fff;background:linear-gradient(135deg,#ff6b6b,#8b5cf6);box-shadow:0 18px 45px -18px rgba(255,107,107,.65)}.hero-btn.secondary{color:var(--text-main);background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.hero-radar-art{min-height:460px;display:grid;place-items:center;position:relative}.radar-core{width:min(430px,82vw);aspect-ratio:1;position:relative;display:grid;place-items:center}
+.radar-ring{position:absolute;border-radius:50%;border:1px solid rgba(139,92,246,.28);box-shadow:inset 0 0 50px rgba(139,92,246,.06),0 0 50px rgba(139,92,246,.04)}.radar-ring.r1{inset:0}.radar-ring.r2{inset:12%}.radar-ring.r3{inset:25%}
+.radar-sweep{position:absolute;width:50%;height:2px;left:50%;top:50%;transform-origin:left center;background:linear-gradient(90deg,rgba(255,107,107,.85),transparent);filter:drop-shadow(0 0 10px rgba(255,107,107,.55));animation:landing-sweep 5s linear infinite}
+.radar-hub{width:86px;height:86px;border-radius:27px;display:grid;place-items:center;color:#fff;font-size:28px;background:linear-gradient(135deg,#ff6b6b,#8b5cf6);box-shadow:0 24px 60px -20px rgba(255,107,107,.65);z-index:4}
+.radar-node{position:absolute;width:11px;height:11px;border-radius:50%;background:#10b981;box-shadow:0 0 0 8px rgba(16,185,129,.10),0 0 24px rgba(16,185,129,.55);z-index:3}.radar-node.n1{left:18%;top:34%}.radar-node.n2{right:19%;top:26%;background:#ff6b6b;box-shadow:0 0 0 8px rgba(255,107,107,.10),0 0 24px rgba(255,107,107,.55)}.radar-node.n3{right:14%;bottom:30%;background:#8b5cf6;box-shadow:0 0 0 8px rgba(139,92,246,.10),0 0 24px rgba(139,92,246,.55)}
+.radar-card{position:absolute;z-index:6;min-width:165px;padding:13px 15px;border-radius:17px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.07);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 60px -20px rgba(0,0,0,.60);animation:landing-float 5s ease-in-out infinite}.radar-card.card-a{left:1%;top:17%}.radar-card.card-b{right:0;bottom:13%;animation-delay:-2.2s}.radar-card strong{display:block;font-size:12px;margin-bottom:4px}.radar-card span{display:block;font-size:10px;color:var(--text-muted)}
+.kpi-floating-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.065);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:24px;overflow:hidden;box-shadow:0 24px 60px -20px rgba(0,0,0,.48)}
+.kpi-item{padding:23px 25px;position:relative}.kpi-item+.kpi-item::before{content:"";position:absolute;left:0;top:20%;height:60%;width:1px;background:rgba(255,255,255,.08)}.kpi-value{font-size:26px;font-weight:900;letter-spacing:-1px}.kpi-label{margin-top:5px;color:var(--text-muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.landing-section{padding:82px 0 0}.section-kicker{color:#8b5cf6;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}.section-title{font-size:clamp(28px,4vw,42px);line-height:1.05;letter-spacing:-1.8px;font-weight:900;margin-bottom:28px}
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.feature-card{min-height:210px;padding:24px;border:1px solid rgba(255,255,255,.09);border-radius:24px;background:rgba(255,255,255,.045);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 40px -12px rgba(0,0,0,.35);transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}.feature-card:hover{transform:translateY(-7px);border-color:rgba(139,92,246,.35);box-shadow:0 24px 60px -20px rgba(0,0,0,.55)}
+.feature-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;color:#fff;margin-bottom:23px;background:linear-gradient(135deg,#ff6b6b,#8b5cf6)}.feature-card h3{font-size:15px;font-weight:900;margin-bottom:9px}.feature-card p{color:var(--text-muted);font-size:12px;line-height:1.7}
+.urgent-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.urgent-card{padding:20px;border-radius:22px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);min-height:150px}.urgent-tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:rgba(255,107,107,.12);color:#ff8585;font-size:9px;font-weight:900;text-transform:uppercase}.urgent-card h3{font-size:14px;margin:15px 0 6px}.urgent-card p{color:var(--text-muted);font-size:11px;line-height:1.55}.landing-empty{grid-column:1/-1;padding:28px;border:1px dashed rgba(255,255,255,.13);border-radius:22px;color:var(--text-muted);text-align:center;background:rgba(255,255,255,.025)}
+.landing-footer{margin-top:82px;padding:30px 0 40px;border-top:1px solid rgba(255,255,255,.08);color:var(--text-muted);font-size:11px}.landing-footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+@keyframes landing-sweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes landing-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes landing-ping{0%,100%{box-shadow:0 0 0 5px rgba(16,185,129,.10)}50%{box-shadow:0 0 0 9px rgba(16,185,129,.02)}}
+@media(max-width:1024px){.hero{grid-template-columns:1fr;padding-top:35px}.hero-copy{max-width:760px}.hero-radar-art{min-height:420px}.features-grid,.urgent-grid{grid-template-columns:repeat(2,1fr)}.site-nav-links{gap:15px}}
+@media(max-width:720px){.site-navbar{grid-template-columns:auto auto;justify-content:space-between}.site-nav-links{display:none}.site-auth-btn{padding:0 11px;font-size:11px}.landing-container,.site-navbar{width:min(100% - 28px,1180px)}.hero{gap:15px;padding:30px 0 38px}.hero-headline{font-size:clamp(40px,12vw,58px);letter-spacing:-2.5px}.hero-subhead{font-size:14px}.hero-radar-art{min-height:360px}.radar-core{width:min(350px,90vw)}.radar-card{min-width:140px}.kpi-floating-bar{grid-template-columns:repeat(2,1fr)}.features-grid,.urgent-grid{grid-template-columns:1fr}.landing-footer-inner{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.radar-sweep,.radar-card,.micro-badge-dot{animation:none!important}}
+
     </style>
 </head>
 
-<body class="dark">
+<body class="dark landing-active">
 
     <!-- =========================================================
          HEADER
     ========================================================= -->
 
-    <header>
+    <header id="app-header">
 
         <div class="brand-container"
              onclick="window.location.reload()">
@@ -2156,7 +2200,7 @@
          MAIN
     ========================================================= -->
 
-    <main>
+    <main id="view-map" class="operational-view">
 
         <!-- SIDEBAR -->
 
@@ -6823,7 +6867,115 @@
             }
         );
 
+    
+        /* === LANDING VIEW ROUTER — PHASE 2A.1 === */
+        window.showView = function(view) {
+            const landing = document.getElementById('view-landing');
+            const operational = document.getElementById('view-map');
+            const appHeader = document.getElementById('app-header');
+            const adminPanel = document.getElementById('admin-panel-section');
+            const isLanding = view === 'landing';
+            document.body.classList.toggle('landing-active', isLanding);
+            if (landing) landing.style.display = isLanding ? '' : 'block';
+            if (operational) operational.style.display = isLanding ? 'none' : '';
+            if (appHeader) appHeader.style.display = isLanding ? 'none' : '';
+            if (adminPanel && isLanding) adminPanel.style.display = 'none';
+            if (!isLanding && typeof renderMapPins === 'function') setTimeout(() => {
+                if (leafletMap && typeof leafletMap.invalidateSize === 'function') leafletMap.invalidateSize();
+                renderMapPins();
+            }, 50);
+            if (!isLanding) window.scrollTo({top:0,behavior:'smooth'});
+        };
+
+        function renderLandingAlerts() {
+            const grid = document.getElementById('landing-urgent-grid');
+            const alerts = Array.isArray(window.alertsData) ? window.alertsData.filter(a => (a.status === 'approved' || !a.status) && a.type !== 'Reunido') : [];
+            const alertsCount = document.getElementById('landing-kpi-alerts');
+            if (alertsCount) alertsCount.textContent = String(alerts.length);
+            if (!grid) return;
+            if (!alerts.length) {
+                grid.innerHTML = '<div class="landing-empty">No hay alertas activas disponibles en este momento.</div>';
+                return;
+            }
+            const safe = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
+            grid.innerHTML = alerts.slice(0,4).map(alert => {
+                const title = safe(alert.name || alert.petName || alert.title || 'Mascota reportada');
+                const type = safe(alert.type || 'Alerta');
+                const location = safe(alert.location || alert.address || 'Ubicación disponible en el radar');
+                return `<article class="urgent-card"><span class="urgent-tag">${type}</span><h3>${title}</h3><p><i class="fa-solid fa-location-dot"></i> ${location}</p></article>`;
+            }).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLandingAlerts();
+            window.showView('landing');
+        });
+
     </script>
+
+
+    <section id="view-landing" aria-label="Inicio de PawFinds">
+        <header class="site-navbar">
+            <button class="site-brand" type="button" onclick="showView('landing')" aria-label="Ir al inicio">
+                <span class="site-brand-mark"><i class="fa-solid fa-paw"></i></span>
+                <span class="site-brand-name">PawFinds</span>
+            </button>
+            <nav class="site-nav-links" aria-label="Navegación principal">
+                <button class="site-nav-link" type="button" onclick="showView('map')">Radar</button>
+                <button class="site-nav-link" type="button" onclick="showView('map')">Alertas</button>
+                <button class="site-nav-link" type="button" onclick="showView('map')">Comunidad</button>
+                <button class="site-nav-link" type="button" onclick="showView('map')">Dashboard</button>
+            </nav>
+            <div class="site-nav-actions">
+                <button class="site-theme-btn" type="button" onclick="toggleTheme()" aria-label="Cambiar tema"><i class="fa-solid fa-sun"></i></button>
+                <button class="site-auth-btn" type="button" onclick="showView('map')">Abrir aplicación</button>
+            </div>
+        </header>
+        <div class="landing-container">
+            <section class="hero">
+                <div class="hero-copy">
+                    <div class="micro-badge"><span class="micro-badge-dot"></span>Radar comunitario activo</div>
+                    <h1 class="hero-headline">Ayudando a las mascotas a encontrar el <span class="gradient-word">camino de regreso a casa.</span></h1>
+                    <p class="hero-subhead">Una red inteligente que conecta personas, alertas y rescates para reportar, localizar y reunir mascotas con su comunidad.</p>
+                    <div class="hero-cta">
+                        <button class="hero-btn primary" type="button" onclick="openReportModal()"><i class="fa-solid fa-bullhorn"></i> Reportar mascota</button>
+                        <button class="hero-btn secondary" type="button" onclick="showView('map')"><i class="fa-solid fa-location-crosshairs"></i> Explorar mapa</button>
+                    </div>
+                </div>
+                <div class="hero-radar-art" aria-hidden="true">
+                    <div class="radar-core">
+                        <div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div class="radar-sweep"></div>
+                        <span class="radar-node n1"></span><span class="radar-node n2"></span><span class="radar-node n3"></span>
+                        <div class="radar-hub"><i class="fa-solid fa-paw"></i></div>
+                        <div class="radar-card card-a"><strong><i class="fa-solid fa-satellite-dish"></i> Radar activo</strong><span>Detectando alertas cercanas</span></div>
+                        <div class="radar-card card-b"><strong><i class="fa-solid fa-people-group"></i> Red comunitaria</strong><span>Personas conectadas para ayudar</span></div>
+                    </div>
+                </div>
+            </section>
+            <section class="kpi-floating-bar" aria-label="Indicadores de PawFinds">
+                <div class="kpi-item"><div class="kpi-value" id="landing-kpi-reunited">—</div><div class="kpi-label">Reencuentros</div></div>
+                <div class="kpi-item"><div class="kpi-value" id="landing-kpi-alerts">—</div><div class="kpi-label">Alertas activas</div></div>
+                <div class="kpi-item"><div class="kpi-value">—</div><div class="kpi-label">Voluntarios</div></div>
+                <div class="kpi-item"><div class="kpi-value">—</div><div class="kpi-label">Organizaciones</div></div>
+            </section>
+            <section class="landing-section">
+                <div class="section-kicker">El ecosistema</div>
+                <h2 class="section-title">Una red diseñada para actuar cuando más importa.</h2>
+                <div class="features-grid">
+                    <article class="feature-card"><div class="feature-icon"><i class="fa-solid fa-radar"></i></div><h3>Radar en directo</h3><p>Explora alertas y señales relevantes desde el mapa operacional de PawFinds.</p></article>
+                    <article class="feature-card"><div class="feature-icon"><i class="fa-solid fa-bullhorn"></i></div><h3>Red comunitaria</h3><p>Comparte información útil para que más personas puedan responder a un reporte.</p></article>
+                    <article class="feature-card"><div class="feature-icon"><i class="fa-solid fa-kit-medical"></i></div><h3>Zonas de emergencia</h3><p>Accede rápidamente a las herramientas operacionales de apoyo y urgencias.</p></article>
+                    <article class="feature-card"><div class="feature-icon"><i class="fa-solid fa-house-medical"></i></div><h3>Refugios y veterinarios</h3><p>Consulta los puntos disponibles dentro del ecosistema cuando estén registrados.</p></article>
+                </div>
+            </section>
+            <section class="landing-section">
+                <div class="section-kicker">Radar</div>
+                <h2 class="section-title">Alertas que necesitan atención.</h2>
+                <div id="landing-urgent-grid" class="urgent-grid"><div class="landing-empty">Las alertas reales aparecerán aquí cuando estén disponibles.</div></div>
+            </section>
+            <footer class="landing-footer"><div class="landing-footer-inner"><div><strong>PawFinds</strong> · Global Pet Rescue &amp; Radar Ecosystem</div><div>Conectando personas para ayudar a que las mascotas vuelvan a casa.</div></div></footer>
+        </div>
+    </section>
 
 </body>
 </html>
