@@ -2212,6 +2212,67 @@ body.app-active #toast {
 }
 </style>
 
+
+<style id="pawfinds-app-shell-v3">
+/* =========================================================
+   PAWFINDs APP SHELL V3
+   The old header is retired from the visible product shell.
+   Existing Firebase/Leaflet functions remain the data layer.
+========================================================= */
+body.app-active #app-header{display:none!important}
+body.app-active #admin-panel-section{display:none!important}
+#pawfinds-app-topbar{display:none}
+body.app-active #pawfinds-app-topbar{
+ display:grid;grid-template-columns:auto minmax(220px,1fr) auto;align-items:center;
+ position:relative;z-index:500;height:68px;min-height:68px;padding:0 22px;
+ border-bottom:1px solid #e2e8f0;background:rgba(255,255,255,.82);
+ backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+ box-shadow:0 8px 30px rgba(15,23,42,.06);
+}
+body.dark.app-active #pawfinds-app-topbar{background:rgba(24,24,38,.88);border-color:rgba(255,255,255,.09)}
+.pf-app-brand{display:flex;align-items:center;gap:10px;font-weight:900;color:inherit;cursor:pointer}
+.pf-app-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#ff6b6b,#8b5cf6);box-shadow:0 12px 36px -10px rgba(255,107,107,.5)}
+.pf-app-brand strong{font-size:17px;letter-spacing:-.4px}
+.pf-app-search{justify-self:center;width:min(430px,100%);height:40px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;color:#64748b;display:flex;align-items:center;gap:9px;padding:0 13px;font-size:11px;font-weight:800}
+body.dark.app-active .pf-app-search{background:#222234;border-color:rgba(255,255,255,.09)}
+.pf-app-actions{display:flex;align-items:center;gap:6px;justify-self:end}
+.pf-app-action{border:0;background:transparent;color:#64748b;border-radius:10px;padding:9px 10px;font:inherit;font-size:11px;font-weight:900;cursor:pointer}
+.pf-app-action:hover,.pf-app-action.active{background:#f1f5f9;color:#8b5cf6}
+body.dark.app-active .pf-app-action:hover,body.dark.app-active .pf-app-action.active{background:#2b2d42}
+.pf-app-admin{color:#f59e0b!important}
+#view-admin-new,#view-dashboard-new{display:none}
+body.app-active.pf-admin-active #view-map,
+body.app-active.pf-admin-active #view-dashboard-new{display:none!important}
+body.app-active.pf-dashboard-active #view-map,
+body.app-active.pf-dashboard-active #view-admin-new{display:none!important}
+body.app-active.pf-admin-active #view-admin-new,
+body.app-active.pf-dashboard-active #view-dashboard-new{display:block!important}
+.pf-module-page{height:calc(100vh - 68px);overflow:auto;padding:34px clamp(18px,4vw,55px);background:#f8fafc}
+body.dark.app-active .pf-module-page{background:#181826}
+.pf-module-head{max-width:1120px;margin:0 auto 26px}
+.pf-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8b5cf6}
+.pf-module-head h2{font-size:clamp(28px,4vw,44px);line-height:1.05;letter-spacing:-1.8px;margin:8px 0}
+.pf-module-head p{color:#64748b;font-size:13px;line-height:1.6;max-width:720px}
+.pf-module-grid{max-width:1120px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pf-module-card{padding:21px;border:1px solid #e2e8f0;border-radius:20px;background:rgba(255,255,255,.78);box-shadow:0 10px 40px -12px rgba(15,23,42,.12)}
+body.dark.app-active .pf-module-card{background:#222234;border-color:rgba(255,255,255,.09)}
+.pf-module-card .value{font-size:28px;font-weight:900;letter-spacing:-1px}
+.pf-module-card .label{margin-top:5px;color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase}
+.pf-admin-list{max-width:1120px;margin:18px auto 0;display:grid;gap:10px}
+.pf-admin-item{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px 18px;border:1px solid #e2e8f0;border-radius:16px;background:#fff}
+body.dark.app-active .pf-admin-item{background:#222234;border-color:rgba(255,255,255,.09)}
+.pf-admin-item small{display:block;color:#64748b;margin-top:4px}
+.pf-admin-actions{display:flex;gap:7px;flex-wrap:wrap}
+.pf-admin-actions button{border:0;border-radius:10px;padding:9px 12px;font:inherit;font-size:10px;font-weight:900;cursor:pointer}
+.pf-ok{background:#10b981;color:#fff}.pf-no{background:#fee2e2;color:#b91c1c}
+@media(max-width:900px){
+ body.app-active #pawfinds-app-topbar{grid-template-columns:auto 1fr auto;padding:0 12px}
+ .pf-app-search{display:none}.pf-app-action span{display:none}
+ .pf-module-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){.pf-module-grid{grid-template-columns:1fr}.pf-module-page{padding:24px 14px}}
+</style>
+
 </head>
 
 <body class="dark landing-active">
@@ -7049,53 +7110,103 @@ body.app-active #toast {
         );
 
     
-        /* === PAWFINDs VIEW ROUTER — PHASE 2A.3 ===
-           Public Landing y Operational App son dos estados mutuamente
-           excluyentes. El App Shell reutiliza la lógica real existente,
-           pero nunca se renderiza junto a la Landing.
-        ================================================================ */
+        /* === PAWFINDs VIEW ROUTER — PHASE 2A.4 === */
         window.showView = function(view) {
             const landing = document.getElementById('view-landing');
             const operational = document.getElementById('view-map');
-            const appHeader = document.getElementById('app-header');
+            const topbar = document.getElementById('pawfinds-app-topbar');
+            const dashboard = document.getElementById('view-dashboard-new');
+            const admin = document.getElementById('view-admin-new');
             const isLanding = view === 'landing';
 
             document.body.classList.toggle('landing-active', isLanding);
             document.body.classList.toggle('app-active', !isLanding);
+            document.body.classList.remove('pf-admin-active','pf-dashboard-active');
 
             if (landing) landing.style.display = isLanding ? '' : 'none';
+            if (topbar) topbar.style.display = isLanding ? 'none' : 'grid';
             if (operational) operational.style.display = isLanding ? 'none' : 'flex';
-            if (appHeader) appHeader.style.display = isLanding ? 'none' : 'flex';
+            if (dashboard) dashboard.style.display = 'none';
+            if (admin) admin.style.display = 'none';
 
             if (!isLanding) {
                 setTimeout(() => {
-                    if (typeof leafletMap !== 'undefined' && leafletMap &&
-                        typeof leafletMap.invalidateSize === 'function') {
-                        leafletMap.invalidateSize();
-                    }
+                    if (typeof leafletMap !== 'undefined' && leafletMap?.invalidateSize) leafletMap.invalidateSize();
                     if (typeof renderMapPins === 'function') renderMapPins();
                 }, 80);
-                window.scrollTo({top: 0, behavior: 'instant'});
+                window.scrollTo({top:0,behavior:'instant'});
             }
         };
 
         window.openAppView = function(section) {
             window.showView('app');
-
-            const targets = {
-                radar: 'real-leaflet-map',
-                alerts: 'alerts-list',
-                community: 'sidebar-social-dock'
-            };
-
-            const target = targets[section] ? document.getElementById(targets[section]) : null;
-
-            if (target) {
+            if (section === 'radar') {
                 setTimeout(() => {
-                    target.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-                }, 120);
+                    const map=document.getElementById('real-leaflet-map');
+                    if(map) map.scrollIntoView({behavior:'smooth',block:'nearest'});
+                    if (typeof leafletMap !== 'undefined' && leafletMap?.invalidateSize) leafletMap.invalidateSize();
+                },120);
+                return;
+            }
+            if (section === 'alerts') {
+                setTimeout(() => document.getElementById('alerts-list')?.focus?.({preventScroll:true}),120);
+                return;
+            }
+            if (section === 'community') {
+                setTimeout(() => document.getElementById('sidebar-social-dock')?.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
             }
         };
+
+        window.openDashboardView = function() {
+            window.showView('app');
+            document.body.classList.add('pf-dashboard-active');
+            document.getElementById('view-map').style.display='none';
+            document.getElementById('view-dashboard-new').style.display='block';
+            renderDashboardView();
+            window.scrollTo({top:0,behavior:'instant'});
+        };
+
+        window.openAdminCenter = function() {
+            window.showView('app');
+            document.body.classList.add('pf-admin-active');
+            document.getElementById('view-map').style.display='none';
+            document.getElementById('view-admin-new').style.display='block';
+            renderAdminCenter();
+            window.scrollTo({top:0,behavior:'instant'});
+        };
+
+        function getRealAlerts() {
+            return Array.isArray(window.alertsData) ? window.alertsData : [];
+        }
+
+        function renderDashboardView() {
+            const a=getRealAlerts();
+            const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v)};
+            set('pf-dash-alerts',a.length);
+            set('pf-dash-active',a.filter(x=>x.status==='approved'||!x.status).length);
+            set('pf-dash-pending',a.filter(x=>x.status==='pending').length);
+            set('pf-dash-reunited',a.filter(x=>x.type==='Reunido'||x.status==='reunited').length);
+        }
+
+        function renderAdminCenter() {
+            const a=getRealAlerts();
+            const pending=a.filter(x=>x.status==='pending');
+            const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v)};
+            set('pf-admin-total',a.length);
+            set('pf-admin-pending',pending.length);
+            set('pf-admin-approved',a.filter(x=>x.status==='approved').length);
+            set('pf-admin-reunited',a.filter(x=>x.type==='Reunido'||x.status==='reunited').length);
+            const list=document.getElementById('pf-admin-list');
+            if(!list)return;
+            if(!pending.length){
+                list.innerHTML='<div class="pf-admin-item"><div><strong>No hay alertas pendientes.</strong><small>La bandeja está limpia.</small></div></div>';
+                return;
+            }
+            list.innerHTML=pending.map(item=>{
+                const esc=window.escapeHTML||((v)=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])));
+                return '<div class="pf-admin-item"><div><strong>'+esc(item.name||'Mascota reportada')+'</strong><small>'+esc(item.type||'Alerta')+' · '+esc(item.location||'Ubicación no indicada')+'</small></div><div class="pf-admin-actions"><button class="pf-ok" onclick="aprobarAnuncio(\''+String(item.id).replace(/'/g,'\\\'')+'\');setTimeout(renderAdminCenter,300)">Aprobar</button><button class="pf-no" onclick="rechazarAnuncio(\''+String(item.id).replace(/'/g,'\\\'')+'\');setTimeout(renderAdminCenter,300)">Rechazar</button></div></div>';
+            }).join('');
+        }
 
         function renderLandingAlerts() {
             const grid = document.getElementById('landing-urgent-grid');
@@ -7124,6 +7235,52 @@ body.app-active #toast {
     </script>
 
 
+
+    <!-- =========================================================
+         PAWFINDs APP SHELL — V3
+         New internal product shell. Existing operational logic
+         remains behind these views.
+    ========================================================= -->
+    <div id="pawfinds-app-topbar" aria-label="PawFinds app navigation">
+        <button class="pf-app-brand" type="button" onclick="showView('landing')">
+            <span class="pf-app-mark"><i class="fa-solid fa-paw"></i></span>
+            <strong>PawFinds</strong>
+        </button>
+        <div class="pf-app-search"><i class="fa-solid fa-magnifying-glass"></i><span>Buscar alertas, mascotas o ubicaciones…</span></div>
+        <div class="pf-app-actions">
+            <button class="pf-app-action" type="button" onclick="openAppView('radar')"><i class="fa-solid fa-radar"></i> <span>Radar</span></button>
+            <button class="pf-app-action" type="button" onclick="openAppView('alerts')"><i class="fa-solid fa-bell"></i> <span>Alertas</span></button>
+            <button class="pf-app-action" type="button" onclick="openAppView('community')"><i class="fa-solid fa-users"></i> <span>Comunidad</span></button>
+            <button class="pf-app-action" type="button" onclick="openDashboardView()"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></button>
+            <button class="pf-app-action pf-app-admin" type="button" onclick="openAdminCenter()"><i class="fa-solid fa-shield-halved"></i> <span>Admin</span></button>
+        </div>
+    </div>
+
+    <section id="view-dashboard-new" aria-label="Dashboard PawFinds">
+        <div class="pf-module-page">
+            <div class="pf-module-head"><div class="pf-kicker">Dashboard</div><h2>Centro de actividad.</h2><p>Indicadores construidos desde los datos que PawFinds ya tiene disponibles. No se muestran métricas ficticias.</p></div>
+            <div class="pf-module-grid">
+                <article class="pf-module-card"><div class="value" id="pf-dash-alerts">—</div><div class="label">Alertas registradas</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-dash-active">—</div><div class="label">Alertas activas</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-dash-pending">—</div><div class="label">Pendientes</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-dash-reunited">—</div><div class="label">Reunidos</div></article>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-admin-new" aria-label="Centro de administración PawFinds">
+        <div class="pf-module-page">
+            <div class="pf-module-head"><div class="pf-kicker">Admin Center</div><h2>Centro de administración.</h2><p>Moderación operativa conectada al estado real de PawFinds. La autorización definitiva seguirá migrándose a reglas de backend; este centro no reemplaza Firebase Rules.</p></div>
+            <div class="pf-module-grid">
+                <article class="pf-module-card"><div class="value" id="pf-admin-total">—</div><div class="label">Alertas totales</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-admin-pending">—</div><div class="label">Pendientes</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-admin-approved">—</div><div class="label">Aprobadas</div></article>
+                <article class="pf-module-card"><div class="value" id="pf-admin-reunited">—</div><div class="label">Reunidas</div></article>
+            </div>
+            <div id="pf-admin-list" class="pf-admin-list"></div>
+        </div>
+    </section>
+
     <section id="view-landing" aria-label="Inicio de PawFinds">
         <header class="site-navbar">
             <button class="site-brand" type="button" onclick="showView('landing')" aria-label="Ir al inicio">
@@ -7134,7 +7291,7 @@ body.app-active #toast {
                 <button class="site-nav-link" type="button" onclick="openAppView('radar')">Radar</button>
                 <button class="site-nav-link" type="button" onclick="openAppView('alerts')">Alertas</button>
                 <button class="site-nav-link" type="button" onclick="openAppView('community')">Comunidad</button>
-                <button class="site-nav-link" type="button" onclick="openAppView('radar')">Dashboard</button>
+                <button class="site-nav-link" type="button" onclick="openDashboardView()">Dashboard</button>
             </nav>
             <div class="site-nav-actions">
                 <button class="site-theme-btn" type="button" onclick="toggleTheme()" aria-label="Cambiar tema"><i class="fa-solid fa-sun"></i></button>
