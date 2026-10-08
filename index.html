@@ -6868,23 +6868,61 @@ body:not(.landing-active) #view-landing{display:none!important}
         );
 
     
-        /* === LANDING VIEW ROUTER — PHASE 2A.1 === */
+        /* === PAWFINDs VIEW ROUTER — PHASE 2A.2 ===
+           Landing and operational application are mutually exclusive states.
+           Legacy navigation remains inside the operational app; it is never
+           rendered together with the public Landing.
+        ================================================================ */
         window.showView = function(view) {
             const landing = document.getElementById('view-landing');
             const operational = document.getElementById('view-map');
             const appHeader = document.getElementById('app-header');
             const adminPanel = document.getElementById('admin-panel-section');
             const isLanding = view === 'landing';
+
             document.body.classList.toggle('landing-active', isLanding);
-            if (landing) landing.style.display = isLanding ? '' : 'block';
+            document.body.classList.toggle('app-active', !isLanding);
+
+            if (landing) landing.style.display = isLanding ? '' : 'none';
             if (operational) operational.style.display = isLanding ? 'none' : '';
             if (appHeader) appHeader.style.display = isLanding ? 'none' : '';
             if (adminPanel && isLanding) adminPanel.style.display = 'none';
-            if (!isLanding && typeof renderMapPins === 'function') setTimeout(() => {
-                if (leafletMap && typeof leafletMap.invalidateSize === 'function') leafletMap.invalidateSize();
-                renderMapPins();
-            }, 50);
-            if (!isLanding) window.scrollTo({top:0,behavior:'smooth'});
+
+            if (!isLanding) {
+                setTimeout(() => {
+                    if (typeof leafletMap !== 'undefined' && leafletMap &&
+                        typeof leafletMap.invalidateSize === 'function') {
+                        leafletMap.invalidateSize();
+                    }
+                    if (typeof renderMapPins === 'function') renderMapPins();
+                }, 50);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        };
+
+        window.openAppView = function(section) {
+            window.showView('app');
+
+            const targets = {
+                radar: 'real-leaflet-map',
+                alerts: 'alerts-list',
+                community: 'sidebar-social-dock',
+                dashboard: 'admin-panel-section'
+            };
+
+            const targetId = targets[section];
+            const target = targetId ? document.getElementById(targetId) : null;
+
+            if (target) {
+                setTimeout(() => {
+                    target.scrollIntoView({behavior: 'smooth', block: 'start'});
+                }, 100);
+            }
+
+            if (section === 'alerts') {
+                const alertsList = document.getElementById('alerts-list');
+                if (alertsList) alertsList.focus?.({preventScroll: true});
+            }
         };
 
         function renderLandingAlerts() {
@@ -6921,14 +6959,14 @@ body:not(.landing-active) #view-landing{display:none!important}
                 <span class="site-brand-name">PawFinds</span>
             </button>
             <nav class="site-nav-links" aria-label="Navegación principal">
-                <button class="site-nav-link" type="button" onclick="showView('map')">Radar</button>
-                <button class="site-nav-link" type="button" onclick="showView('map')">Alertas</button>
-                <button class="site-nav-link" type="button" onclick="showView('map')">Comunidad</button>
-                <button class="site-nav-link" type="button" onclick="showView('map')">Dashboard</button>
+                <button class="site-nav-link" type="button" onclick="openAppView('radar')">Radar</button>
+                <button class="site-nav-link" type="button" onclick="openAppView('alerts')">Alertas</button>
+                <button class="site-nav-link" type="button" onclick="openAppView('community')">Comunidad</button>
+                <button class="site-nav-link" type="button" onclick="openAppView('dashboard')">Dashboard</button>
             </nav>
             <div class="site-nav-actions">
                 <button class="site-theme-btn" type="button" onclick="toggleTheme()" aria-label="Cambiar tema"><i class="fa-solid fa-sun"></i></button>
-                <button class="site-auth-btn" type="button" onclick="showView('map')">Abrir aplicación</button>
+                <button class="site-auth-btn" type="button" onclick="openAppView('radar')">Abrir aplicación</button>
             </div>
         </header>
         <div class="landing-container">
@@ -6939,7 +6977,7 @@ body:not(.landing-active) #view-landing{display:none!important}
                     <p class="hero-subhead">Una red inteligente que conecta personas, alertas y rescates para reportar, localizar y reunir mascotas con su comunidad.</p>
                     <div class="hero-cta">
                         <button class="hero-btn primary" type="button" onclick="openReportModal()"><i class="fa-solid fa-bullhorn"></i> Reportar mascota</button>
-                        <button class="hero-btn secondary" type="button" onclick="showView('map')"><i class="fa-solid fa-location-crosshairs"></i> Explorar mapa</button>
+                        <button class="hero-btn secondary" type="button" onclick="openAppView('radar')"><i class="fa-solid fa-location-crosshairs"></i> Explorar mapa</button>
                     </div>
                 </div>
                 <div class="hero-radar-art" aria-hidden="true">
